@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BDC · Calculadora de Cotação</title>
+<style>
+  :root{
+    --ink: #14231d;
+    --ink-soft: #5b6a63;
+    --line: #e4e7e2;
+    --surface: #ffffff;
+    --canvas: #f7f8f5;
+    --accent: #1c6b4f;
+    --accent-soft: #e6f0ea;
+    --accent-deep: #0f4733;
+    --warn: #b3261e;
+    --radius: 10px;
+    font-size: 15px;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--canvas);
+    color: var(--ink);
+    padding: 32px 20px 60px;
+  }
+  .page{ max-width: 980px; margin: 0 auto; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom: 28px;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand .mark{
+    width:36px; height:36px; border-radius:9px; background:var(--accent);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:14px; letter-spacing:.5px;
+  }
+  .brand h1{ font-size:17px; margin:0; font-weight:650; letter-spacing:-.2px; }
+  .brand .sub{ font-size:12.5px; color:var(--ink-soft); margin-top:1px; }
+  .tag{
+    font-size:11.5px; color:var(--accent-deep); background:var(--accent-soft);
+    padding:5px 10px; border-radius:999px; font-weight:600; letter-spacing:.2px;
+  }
+
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 24px 24px;
+    margin-bottom: 18px;
+  }
+  .card-title{
+    font-size: 13px; font-weight: 650; color: var(--ink);
+    margin: 0 0 16px; display:flex; align-items:center; gap:8px;
+  }
+  .card-title::before{
+    content:''; width:5px; height:5px; border-radius:50%; background:var(--accent);
+  }
+
+  .row{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+  .row:last-child{ margin-bottom:0; }
+  .f{ display:flex; flex-direction:column; gap:5px; }
+  .f label{ font-size:11.5px; font-weight:600; color: var(--ink-soft); letter-spacing:.1px; }
+  .f input, .f select{
+    border:1px solid var(--line); border-radius:7px; background:#fff;
+    padding:8px 10px; font-size:13.5px; color:var(--ink);
+    font-family: inherit; height:36px;
+  }
+  .f input:focus, .f select:focus{ outline:none; border-color: var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .f input:disabled, .f select:disabled{ background:#f2f3f0; color:#9aa39c; }
+
+  /* widths */
+  .w-xs{ width:104px; }
+  .w-sm{ width:130px; }
+  .w-md{ width:170px; }
+  .w-lg{ width:220px; }
+  .w-xl{ flex:1; min-width:220px; }
+  .w-period{ width:230px; }
+
+  .chd-inline{ display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; }
+  .chd-age{ width:74px; }
+  .hint{ font-size:11px; color:#93998f; margin-top:6px; }
+
+  .checkbox-pill{
+    display:flex; align-items:center; gap:8px; height:36px; padding:0 12px;
+    border:1px solid var(--line); border-radius:7px; background:#fafbf9;
+  }
+  .checkbox-pill input{ width:15px; height:15px; accent-color: var(--accent); }
+  .checkbox-pill span{ font-size:12.5px; color: var(--ink); }
+
+  .actions{ display:flex; gap:10px; margin: 4px 0 18px; }
+  button{
+    font-family:inherit; font-size:13.5px; font-weight:600; border-radius:8px;
+    padding:10px 18px; cursor:pointer; border:1px solid transparent;
+    transition: background .12s ease, border-color .12s ease, color .12s ease;
+  }
+  .btn-primary{ background: var(--accent); color:#fff; }
+  .btn-primary:hover{ background: var(--accent-deep); }
+  .btn-ghost{ background:#fff; border-color: var(--line); color: var(--ink); }
+  .btn-ghost:hover{ border-color:#c7ccc2; background:#fafbf9; }
+
+  .error-msg{
+    font-size:12.5px; color: var(--warn); font-weight:600; margin-top:12px;
+    display:none;
+  }
+  .error-msg.show{ display:block; }
+
+  .result-card{
+    background: var(--surface); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 22px 24px; min-height:140px;
+  }
+  .result-empty{ color:#9aa39c; font-size:13px; }
+  .result-content{ font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size:12.8px; line-height:1.7; white-space:pre-wrap; color: var(--ink); }
+
+  .footer{ text-align:center; font-size:11.5px; color:#aab0a4; margin-top:28px; }
+
+  .calendar-pop{
+    position:absolute; top:calc(100% + 6px); left:0; z-index:50;
+    background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px;
+    box-shadow: 0 12px 28px rgba(20,35,29,.12); width:264px; display:none;
+  }
+  .cal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .cal-head strong{ font-size:12.5px; text-transform:capitalize; font-weight:650; }
+  .cal-nav{ background:none; border:none; color:var(--ink-soft); font-size:15px; padding:2px 6px; border-radius:5px; }
+  .cal-nav:hover{ background: var(--accent-soft); color: var(--accent-deep); }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .cal-dow{ font-size:10px; color:#aab0a4; text-align:center; padding-bottom:4px; font-weight:600; }
+  .cal-day{ border:none; background:transparent; border-radius:6px; padding:6px 0; font-size:11.5px; cursor:pointer; color:var(--ink); }
+  .cal-day:hover{ background: var(--accent-soft); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">BH</div>
+      <div>
+        <h1>Calculadora de Cotação</h1>
+        <div class="sub">Bourbon Hospitalidade · Time Share</div>
+      </div>
+    </div>
+    <span class="tag">Módulo Resorts</span>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Contrato &amp; Unidade</p>
+    <div class="row">
+      <div class="f w-sm">
+        <label>Contrato</label>
+        <input id="contrato" placeholder="1-1000004">
+      </div>
+      <div class="f w-lg">
+        <label>Resort</label>
+        <select id="resort">
+          <option value="BATBR">Bourbon Resort Atibaia</option>
+          <option value="BIGUR">Bourbon Thermas · Cataratas do Iguaçu</option>
+        </select>
+      </div>
+      <div class="f w-md">
+        <label>Modelo de contrato</label>
+        <select id="modelo">
+          <option value="antigo">Antigo</option>
+          <option value="novo">Novo</option>
+        </select>
+      </div>
+      <div class="f w-md">
+        <label>Valor do ponto (R$)</label>
+        <input id="valorPonto" type="number" step="0.0000001" placeholder="0,1699998">
+        <span id="contratoStatus" class="hint" style="margin-top:2px;">&nbsp;</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Estadia &amp; Ocupação</p>
+    <div class="row">
+      <div class="f w-period" style="position:relative;">
+        <label>Período</label>
+        <input id="periodo" type="text" placeholder="Selecionar datas" readonly>
+        <input id="checkin" type="hidden">
+        <input id="checkout" type="hidden">
+        <div id="calendarPanel" class="calendar-pop"></div>
+      </div>
+      <div class="f w-xs">
+        <label>Adultos</label>
+        <input id="adultos" type="number" min="1" value="2">
+      </div>
+      <div class="f w-xs">
+        <label>Crianças</label>
+        <select id="criancas">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      <div id="idadesInline" class="chd-inline"></div>
+      <div class="f w-md">
+        <label>Temporada (auto)</label>
+        <input id="temporada" disabled placeholder="—">
+      </div>
+    </div>
+    <div class="hint">0–5 anos: cortesia · 6–11 anos: meia tarifa · 12+ anos: tratado como adulto</div>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Categoria &amp; Tarifação</p>
+    <div class="row">
+      <div class="f w-xl">
+        <label>Categoria do quarto</label>
+        <select id="categoria"></select>
+      </div>
+      <div class="f w-md">
+        <label>Tipo de pensão</label>
+        <select id="pensao">
+          <option value="cafe">Café da manhã</option>
+          <option value="meia">Meia pensão</option>
+          <option value="completa">Pensão completa</option>
+        </select>
+      </div>
+      <div class="f">
+        <label>&nbsp;</label>
+        <div class="checkbox-pill">
+          <input type="checkbox" id="multaSexSab">
+          <span>Cobrar 20% sex/sáb</span>
+        </div>
+      </div>
+    </div>
+    <div id="erroMsg" class="error-msg"></div>
+  </div>
+
+  <div class="actions">
+    <button id="btnCalcular" class="btn-primary">Calcular orçamento</button>
+    <button id="btnLimpar" class="btn-ghost">Limpar</button>
+    <button id="btnCopiar" class="btn-ghost">Copiar resultado</button>
+  </div>
+
+  <div class="result-card">
+    <div id="resultado" class="result-empty">Preencha os campos acima e clique em "Calcular orçamento".</div>
+  </div>
+
+  <div class="footer">Protótipo interno · Regras extraídas da planilha de Time Share · Módulo Resorts (BATBR / BIGUR)</div>
+</div>
+
+<script>
+// ===================== DADOS (extraídos da planilha) =====================
+
+const TEMPORADAS = [
+  // 2026
+  { start: '2026-01-01', end: '2026-01-17', season: 'superalta', label: '1ª quinz. Janeiro' },
+  { start: '2026-01-18', end: '2026-02-04', season: 'media', label: '2ª quinz. Janeiro' },
+  { start: '2026-02-05', end: '2026-02-08', season: 'superalta', label: 'Carnaval' },
+  { start: '2026-03-26', end: '2026-03-27', season: 'superalta', label: 'Páscoa' },
+  { start: '2026-02-09', end: '2026-03-25', season: 'media', label: 'Fevereiro/Março' },
+  { start: '2026-03-28', end: '2026-05-26', season: 'media', label: 'Março/Abril/Maio' },
+  { start: '2026-05-27', end: '2026-05-29', season: 'superalta', label: 'Corpus Christi' },
+  { start: '2026-05-30', end: '2026-06-30', season: 'media', label: 'Maio/Junho' },
+  { start: '2026-07-01', end: '2026-07-18', season: 'superalta', label: '1ª quinz. Julho' },
+  { start: '2026-07-19', end: '2026-07-31', season: 'media', label: '2ª quinz. Julho' },
+  { start: '2026-08-01', end: '2026-08-31', season: 'media', label: 'Agosto' },
+  { start: '2026-09-01', end: '2026-09-02', season: 'media', label: 'Setembro' },
+  { start: '2026-09-03', end: '2026-09-06', season: 'alta', label: 'Independência' },
+  { start: '2026-09-07', end: '2026-09-30', season: 'media', label: 'Setembro' },
+  { start: '2026-10-01', end: '2026-10-08', season: 'media', label: 'Outubro' },
+  { start: '2026-10-09', end: '2026-10-11', season: 'alta', label: 'Dia das Crianças' },
+  { start: '2026-10-12', end: '2026-10-31', season: 'media', label: 'Outubro' },
+  { start: '2026-10-30', end: '2026-11-01', season: 'alta', label: 'Finados' },
+  { start: '2026-11-02', end: '2026-11-19', season: 'media', label: 'Novembro' },
+  { start: '2026-11-20', end: '2026-11-21', season: 'alta', label: 'Consciência Negra' },
+  { start: '2026-11-22', end: '2026-11-30', season: 'media', label: 'Novembro' },
+  { start: '2026-12-01', end: '2026-12-22', season: 'media', label: 'Dezembro' },
+  { start: '2026-12-23', end: '2026-12-27', season: 'especial', label: 'Natal' },
+  { start: '2026-12-28', end: '2027-01-03', season: 'especial', label: 'Réveillon' },
+  // 2027
+  { start: '2027-01-04', end: '2027-01-17', season: 'superalta', label: '1ª quinz. Janeiro' },
+  { start: '2027-01-18', end: '2027-01-31', season: 'media', label: '2ª quinz. Janeiro' },
+  { start: '2027-02-01', end: '2027-02-04', season: 'media', label: 'Fevereiro' },
+  { start: '2027-02-05', end: '2027-02-08', season: 'superalta', label: 'Carnaval' },
+  { start: '2027-02-09', end: '2027-02-28', season: 'media', label: 'Fevereiro' },
+  { start: '2027-03-01', end: '2027-03-25', season: 'media', label: 'Março' },
+  { start: '2027-03-26', end: '2027-03-27', season: 'superalta', label: 'Páscoa' },
+  { start: '2027-03-28', end: '2027-03-31', season: 'media', label: 'Março' },
+  { start: '2027-04-01', end: '2027-04-30', season: 'media', label: 'Abril' },
+  { start: '2027-05-01', end: '2027-05-26', season: 'media', label: 'Maio' },
+  { start: '2027-05-27', end: '2027-05-29', season: 'superalta', label: 'Corpus Christi' },
+  { start: '2027-05-30', end: '2027-05-31', season: 'media', label: 'Maio' },
+  { start: '2027-06-01', end: '2027-06-30', season: 'media', label: 'Junho' },
+  { start: '2027-07-01', end: '2027-07-18', season: 'superalta', label: '1ª quinz. Julho' },
+  { start: '2027-07-19', end: '2027-07-31', season: 'media', label: '2ª quinz. Julho' },
+  { start: '2027-08-01', end: '2027-08-31', season: 'media', label: 'Agosto' },
+  { start: '2027-09-01', end: '2027-09-02', season: 'media', label: 'Setembro' },
+  { start: '2027-09-03', end: '2027-09-06', season: 'alta', label: 'Independência' },
+  { start: '2027-09-07', end: '2027-09-30', season: 'media', label: 'Setembro' },
+  { start: '2027-10-01', end: '2027-10-07', season: 'media', label: 'Outubro' },
+  { start: '2027-10-08', end: '2027-10-11', season: 'alta', label: 'Dia das Crianças' },
+  { start: '2027-10-12', end: '2027-10-28', season: 'media', label: 'Outubro' },
+  { start: '2027-10-29', end: '2027-11-01', season: 'alta', label: 'Finados' },
+  { start: '2027-11-02', end: '2027-11-11', season: 'media', label: 'Novembro' },
+  { start: '2027-11-12', end: '2027-11-15', season: 'alta', label: 'Proclamação República' },
+  { start: '2027-11-16', end: '2027-11-30', season: 'media', label: 'Novembro' },
+  { start: '2027-12-01', end: '2027-12-22', season: 'media', label: 'Dezembro' },
+  { start: '2027-12-23', end: '2027-12-27', season: 'especial', label: 'Natal' },
+  { start: '2027-12-28', end: '2028-01-03', season: 'especial', label: 'Réveillon' },
+];
+
+const SEASON_LABELS = {
+  especial: 'Datas Especiais (Natal/Réveillon)',
+  superalta: 'Super Alta / Feriados',
+  alta: 'Alta',
+  media: 'Média (demais meses)'
+};
+
+const PENSAO_BIGUR = {
+  especial: { cafe: 99.00, meia: 349.00, completa: 449.00 },
+  superalta: { cafe: 99.00, meia: 349.00, completa: 449.00 },
+  alta: { cafe: 79.00, meia: 249.00, completa: 349.00 },
+  media: { cafe: 79.00, meia: 199.00, completa: 299.00 }
+};
+
+const CHD_RULE = { freeMax: 5, halfMax: 11 };
+
+const CATEGORIAS_BATBR = [
+  { key: 'duplo_superior', label: 'Duplo Superior', adultos: 2, aceitaCHD: true },
+  { key: 'triplo_superior', label: 'Triplo Superior', adultos: 3, aceitaCHD: true },
+  { key: 'duplo_superior_plus', label: 'Duplo Superior Plus', adultos: 2, aceitaCHD: true },
+  { key: 'triplo_superior_plus', label: 'Triplo Superior Plus', adultos: 3, aceitaCHD: true },
+  { key: 'duplo_premier', label: 'Duplo Premier', adultos: 2, aceitaCHD: false },
+  { key: 'triplo_premier', label: 'Triplo Premier', adultos: 3, aceitaCHD: false },
+  { key: 'classic_duplo', label: 'Classic Duplo', adultos: 2, aceitaCHD: false },
+];
+const PONTOS_ANTIGO_BATBR = {
+  especial: { duplo_superior: 80977, triplo_superior: 91512, duplo_superior_plus: 87455, triplo_superior_plus: 98833, duplo_premier: 89922, triplo_premier: 102281, classic_duplo: 132176 },
+  superalta: { duplo_superior: 62512, triplo_superior: 68724, duplo_superior_plus: 67513, triplo_superior_plus: 74222, duplo_premier: 69966, triplo_premier: 77747, classic_duplo: 107826 },
+  alta: { duplo_superior: 50742, triplo_superior: 54665, duplo_superior_plus: 54801.36, triplo_superior_plus: 59038.2, duplo_premier: 57150, triplo_premier: 62381, classic_duplo: 91152 },
+  media: { duplo_superior: 32041, triplo_superior: 32237, duplo_superior_plus: 34604, triplo_superior_plus: 34815.96, duplo_premier: 36814, triplo_premier: 37926, classic_duplo: 64604 },
+};
+const PONTOS_ANTIGO_BATBR_REVEILLON = { duplo_superior: 103046, triplo_superior: 118053, duplo_superior_plus: 111290, triplo_superior_plus: 127497, duplo_premier: 113992, triplo_premier: 131176, classic_duplo: 162544 };
+const PONTOS_ANTIGO_BATBR_NATAL = { duplo_superior: 80977, triplo_superior: 91512, duplo_superior_plus: 87455, triplo_superior_plus: 98833, duplo_premier: 89922, triplo_premier: 102281, classic_duplo: 132176 };
+const PONTOS_ANTIGO_BATBR_PASCOA_CORPUS = { duplo_superior: 54665, triplo_superior: 59373, duplo_superior_plus: 59038, triplo_superior_plus: 64123, duplo_premier: 61466, triplo_premier: 67457, classic_duplo: 96776 };
+const PONTOS_ANTIGO_BATBR_JANEIRO = { duplo_superior: 37926, triplo_superior: 39299, duplo_superior_plus: 40960.08, triplo_superior_plus: 42442.92, duplo_premier: 43222, triplo_premier: 45641, classic_duplo: 72974 };
+
+const CATEGORIAS_BATBR_NOVO = [
+  { key: 'duplo_superior', label: 'Duplo Superior', adultos: 2, aceitaCHD: true },
+  { key: 'triplo_superior', label: 'Triplo Superior', adultos: 3, aceitaCHD: true },
+  { key: 'duplo_superior_plus', label: 'Duplo Superior Plus', adultos: 2, aceitaCHD: true },
+  { key: 'triplo_superior_plus', label: 'Triplo Superior Plus', adultos: 3, aceitaCHD: true },
+  { key: 'duplo_premier', label: 'Duplo Premier', adultos: 2, aceitaCHD: false },
+  { key: 'triplo_premier', label: 'Triplo Premier', adultos: 3, aceitaCHD: false },
+  { key: 'suite_classic', label: 'Suíte Classic', adultos: 2, aceitaCHD: false },
+];
+const PONTOS_NOVO_BATBR_REVEILLON = { duplo_superior: 79889, triplo_superior: 83281, duplo_superior_plus: 83370, triplo_superior_plus: 86761, duplo_premier: 87654, triplo_premier: 91045, suite_classic: 98364 };
+const PONTOS_NOVO_BATBR_NATAL = { duplo_superior: 71485, triplo_superior: 74876, duplo_superior_plus: 74966, triplo_superior_plus: 78357, duplo_premier: 79250, triplo_premier: 82641, suite_classic: 89960 };
+const PONTOS_NOVO_BATBR_CARNAVAL = { duplo_superior: 53624, triplo_superior: 57016, duplo_superior_plus: 57105, triplo_superior_plus: 60497, duplo_premier: 61389, triplo_premier: 64781, suite_classic: 72099 };
+const PONTOS_NOVO_BATBR_TRABALHO = { duplo_superior: 42569, triplo_superior: 45960, duplo_superior_plus: 46049, triplo_superior_plus: 49441, duplo_premier: 50333, triplo_premier: 53725, suite_classic: 61043 };
+const PONTOS_NOVO_BATBR_FEVEREIRO = { duplo_superior: 38465, triplo_superior: 41857, duplo_superior_plus: 41946, triplo_superior_plus: 45337, duplo_premier: 46230, triplo_premier: 49621, suite_classic: 56941 };
+
+const CATEGORIAS_BIGUR_ANTIGO = [
+  { key: 'duplo_sup_jardim', label: 'Duplo Superior Vista Jardim', adultos: 2, aceitaCHD: true },
+  { key: 'triplo_sup_jardim', label: 'Triplo Superior Vista Jardim', adultos: 3, aceitaCHD: true },
+  { key: 'familia_sup_jardim', label: 'Família Superior Vista Jardim', adultos: 4, aceitaCHD: true },
+  { key: 'duplo_sup_piscina', label: 'Duplo Superior Vista Piscina', adultos: 2, aceitaCHD: true },
+  { key: 'triplo_sup_piscina', label: 'Triplo Superior Vista Piscina', adultos: 3, aceitaCHD: true },
+  { key: 'duplo_premier', label: 'Duplo Premier', adultos: 2, aceitaCHD: false },
+  { key: 'triplo_premier', label: 'Triplo Premier', adultos: 3, aceitaCHD: false },
+  { key: 'duplo_premier_plus', label: 'Duplo Premier Plus', adultos: 2, aceitaCHD: false },
+  { key: 'triplo_premier_plus', label: 'Triplo Premier Plus', adultos: 3, aceitaCHD: false },
+];
+const PONTOS_ANTIGO_BIGUR_REVEILLON = { duplo_sup_jardim: 59937, triplo_sup_jardim: 69668, familia_sup_jardim: 104432, duplo_sup_piscina: 63984, triplo_sup_piscina: 74526, duplo_premier: 69103, triplo_premier: 80488, duplo_premier_plus: 74221, triplo_premier_plus: 86450 };
+const PONTOS_ANTIGO_BIGUR_NATAL = { duplo_sup_jardim: 43622, triplo_sup_jardim: 50116, familia_sup_jardim: 76660, duplo_sup_piscina: 46736, triplo_sup_piscina: 53790, duplo_premier: 50475, triplo_premier: 58093, duplo_premier_plus: 54214, triplo_premier_plus: 62396 };
+const PONTOS_ANTIGO_BIGUR_JANEIRO = { duplo_sup_jardim: 26249, triplo_sup_jardim: 29255, familia_sup_jardim: 47143, duplo_sup_piscina: 28304, triplo_sup_piscina: 31684, duplo_premier: 30568, triplo_premier: 34219, duplo_premier_plus: 32833, triplo_premier_plus: 36753 };
+const PONTOS_ANTIGO_BIGUR_FEVEREIRO = { duplo_sup_jardim: 24755, triplo_sup_jardim: 27387, familia_sup_jardim: 44529, duplo_sup_piscina: 26686, triplo_sup_piscina: 29753, duplo_premier: 28821, triplo_premier: 32133, duplo_premier_plus: 30956, triplo_premier_plus: 34513 };
+
+const CATEGORIAS_BIGUR_NOVO = [
+  { key: 'duplo_sup_jardim', label: 'Duplo Superior Vista Jardim', adultos: 2, aceitaCHD: true },
+  { key: 'triplo_sup_jardim', label: 'Triplo Superior Vista Jardim', adultos: 3, aceitaCHD: true },
+  { key: 'duplo_sup_piscina', label: 'Duplo Superior Vista Piscina', adultos: 2, aceitaCHD: true },
+  { key: 'triplo_sup_piscina', label: 'Triplo Superior Vista Piscina', adultos: 3, aceitaCHD: true },
+  { key: 'duplo_premier', label: 'Duplo Premier', adultos: 2, aceitaCHD: false },
+  { key: 'triplo_premier', label: 'Triplo Premier', adultos: 3, aceitaCHD: false },
+  { key: 'duplo_premier_plus', label: 'Duplo Premier Plus', adultos: 2, aceitaCHD: false },
+  { key: 'triplo_premier_plus', label: 'Triplo Premier Plus', adultos: 3, aceitaCHD: false },
+  { key: 'suite_classic', label: 'Suíte Classic', adultos: 2, aceitaCHD: false },
+];
+const PONTOS_NOVO_BIGUR_REVEILLON = { duplo_sup_jardim: 63936, triplo_sup_jardim: 66292, duplo_sup_piscina: 69023, triplo_sup_piscina: 71379, duplo_premier: 71700, triplo_premier: 74057, duplo_premier_plus: 77436, triplo_premier_plus: 79982, suite_classic: 101421 };
+const PONTOS_NOVO_BIGUR_NATAL = { duplo_sup_jardim: 34332, triplo_sup_jardim: 36688, duplo_sup_piscina: 39419, triplo_sup_piscina: 41775, duplo_premier: 42096, triplo_premier: 44452, duplo_premier_plus: 45464, triplo_premier_plus: 48008, suite_classic: 71817 };
+const PONTOS_NOVO_BIGUR_CARNAVAL = { duplo_sup_jardim: 32076, triplo_sup_jardim: 34432, duplo_sup_piscina: 37163, triplo_sup_piscina: 39519, duplo_premier: 39840, triplo_premier: 42197, duplo_premier_plus: 43027, triplo_premier_plus: 45573, suite_classic: 69561 };
+const PONTOS_NOVO_BIGUR_TRABALHO = { duplo_sup_jardim: 27230, triplo_sup_jardim: 29586, duplo_sup_piscina: 32317, triplo_sup_piscina: 34674, duplo_premier: 34995, triplo_premier: 37351, duplo_premier_plus: 37795, triplo_premier_plus: 40339, suite_classic: 64715 };
+const PONTOS_NOVO_BIGUR_FEVEREIRO = { duplo_sup_jardim: 22979, triplo_sup_jardim: 25335, duplo_sup_piscina: 28066, triplo_sup_piscina: 30422, duplo_premier: 30744, triplo_premier: 33100, duplo_premier_plus: 33204, triplo_premier_plus: 35748, suite_classic: 60464 };
+
+const TAXA_UTILIZACAO = { adultos2: 58.00, adultos3: 86.00 };
+
+// ===================== LÓGICA =====================
+
+function parseISO(d){ const [y,m,day] = d.split('-').map(Number); return new Date(Date.UTC(y, m-1, day)); }
+function addDays(date, n){ const d = new Date(date); d.setUTCDate(d.getUTCDate()+n); return d; }
+function toISO(date){ return date.toISOString().slice(0,10); }
+function dayOfWeek(date){ return date.getUTCDay(); }
+function formatDateBR(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+
+function temporadaDaData(isoDate){
+  for(const t of TEMPORADAS){
+    if(isoDate >= t.start && isoDate <= t.end) return t;
+  }
+  return null;
+}
+
+function getCategorias(resort, modelo){
+  if(resort==='BATBR') return modelo==='antigo' ? CATEGORIAS_BATBR : CATEGORIAS_BATBR_NOVO;
+  return modelo==='antigo' ? CATEGORIAS_BIGUR_ANTIGO : CATEGORIAS_BIGUR_NOVO;
+}
+
+function pontosDiaria(resort, modelo, categoriaKey, isoDate){
+  const t = temporadaDaData(isoDate);
+  if(!t) return null;
+
+  if(resort==='BATBR' && modelo==='antigo'){
+    if(t.label==='Réveillon') return PONTOS_ANTIGO_BATBR_REVEILLON[categoriaKey];
+    if(t.label==='Natal') return PONTOS_ANTIGO_BATBR_NATAL[categoriaKey];
+    if(t.label==='Páscoa' || t.label==='Corpus Christi') return PONTOS_ANTIGO_BATBR_PASCOA_CORPUS[categoriaKey];
+    if(t.label==='1ª quinz. Janeiro') return PONTOS_ANTIGO_BATBR_JANEIRO[categoriaKey];
+    return PONTOS_ANTIGO_BATBR[t.season][categoriaKey];
+  }
+  if(resort==='BATBR' && modelo==='novo'){
+    if(t.label==='Réveillon') return PONTOS_NOVO_BATBR_REVEILLON[categoriaKey];
+    if(t.label==='Natal') return PONTOS_NOVO_BATBR_NATAL[categoriaKey];
+    if(t.label==='Carnaval') return PONTOS_NOVO_BATBR_CARNAVAL[categoriaKey];
+    if(t.season==='alta') return PONTOS_NOVO_BATBR_TRABALHO[categoriaKey];
+    if(t.season==='media') return PONTOS_NOVO_BATBR_FEVEREIRO[categoriaKey];
+    if(t.season==='superalta') return PONTOS_NOVO_BATBR_CARNAVAL[categoriaKey];
+    return null;
+  }
+  if(resort==='BIGUR' && modelo==='antigo'){
+    if(t.label==='Réveillon') return PONTOS_ANTIGO_BIGUR_REVEILLON[categoriaKey];
+    if(t.label==='Natal') return PONTOS_ANTIGO_BIGUR_NATAL[categoriaKey];
+    if(t.season==='alta') return PONTOS_ANTIGO_BIGUR_JANEIRO[categoriaKey];
+    if(t.season==='media') return PONTOS_ANTIGO_BIGUR_FEVEREIRO[categoriaKey];
+    if(t.season==='superalta') return PONTOS_ANTIGO_BIGUR_NATAL[categoriaKey];
+    return null;
+  }
+  if(resort==='BIGUR' && modelo==='novo'){
+    if(t.label==='Réveillon') return PONTOS_NOVO_BIGUR_REVEILLON[categoriaKey];
+    if(t.label==='Natal') return PONTOS_NOVO_BIGUR_NATAL[categoriaKey];
+    if(t.label==='Carnaval') return PONTOS_NOVO_BIGUR_CARNAVAL[categoriaKey];
+    if(t.season==='alta') return PONTOS_NOVO_BIGUR_TRABALHO[categoriaKey];
+    if(t.season==='media') return PONTOS_NOVO_BIGUR_FEVEREIRO[categoriaKey];
+    if(t.season==='superalta') return PONTOS_NOVO_BIGUR_CARNAVAL[categoriaKey];
+    return null;
+  }
+  return null;
+}
+
+function pensaoValorDia(isoDate, tipoPensao){
+  const t = temporadaDaData(isoDate);
+  if(!t) return null;
+  return PENSAO_BIGUR[t.season][tipoPensao];
+}
+
+// ===================== UI: categorias =====================
+const resortSel = document.getElementById('resort');
+const modeloSel = document.getElementById('modelo');
+const categoriaSel = document.getElementById('categoria');
+
+function popularCategorias(){
+  const cats = getCategorias(resortSel.value, modeloSel.value);
+  categoriaSel.innerHTML = '';
+  if(!cats || cats.length===0){
+    const opt = document.createElement('option');
+    opt.textContent = '— nenhuma categoria cadastrada —';
+    opt.value = '';
+    categoriaSel.appendChild(opt);
+    return;
+  }
+  cats.forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c.key;
+    opt.textContent = `${c.label} (${c.adultos} adultos${c.aceitaCHD ? '' : ' — não aceita CHD'})`;
+    categoriaSel.appendChild(opt);
+  });
+}
+resortSel.addEventListener('change', popularCategorias);
+modeloSel.addEventListener('change', popularCategorias);
+popularCategorias();
+
+// ===================== Lookup automático de Contrato (planilha pública) =====================
+const SHEET_ID = '1TeGcQRgamcvreZxdgqMkBEhUo3z8d9V4';
+const SHEET_NAME_CONTRATOS = 'Contratos';
+const contratoEl = document.getElementById('contrato');
+const valorPontoEl = document.getElementById('valorPonto');
+const contratoStatusEl = document.getElementById('contratoStatus');
+
+let contratosCache = null; // Map: contrato -> { tipo, valorPonto }
+let contratosCacheLoading = null;
+
+function csvParseLine(line){
+  // parser simples de CSV (suporta aspas)
+  const out = [];
+  let cur = '', inQuotes = false;
+  for(let i=0;i<line.length;i++){
+    const ch = line[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(line[i+1] === '"'){ cur += '"'; i++; } else { inQuotes = false; }
+      } else cur += ch;
+    } else {
+      if(ch === '"') inQuotes = true;
+      else if(ch === ','){ out.push(cur); cur=''; }
+      else cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+async function carregarContratos(){
+  if(contratosCache) return contratosCache;
+  if(contratosCacheLoading) return contratosCacheLoading;
+
+  contratosCacheLoading = (async ()=>{
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME_CONTRATOS)}`;
+    const resp = await fetch(url);
+    if(!resp.ok) throw new Error('Não foi possível acessar a planilha de contratos (verifique se o link público está ativo).');
+    const text = await resp.text();
+    const lines = text.split(/\r?\n/).filter(l=>l.trim().length>0);
+    const map = new Map();
+    // Esperado: Contrato, Produto, Tipo do Contrato, Valor do Ponto (cabeçalho pode variar de posição)
+    lines.forEach(line=>{
+      const cols = csvParseLine(line).map(c=>c.trim());
+      if(cols.length < 4) return;
+      const [contrato, produto, tipo, valorPontoStr] = cols;
+      if(!contrato || contrato.toLowerCase()==='contrato') return; // pula cabeçalho
+      const valorPonto = parseFloat(valorPontoStr.replace(',', '.'));
+      if(isNaN(valorPonto)) return;
+      const tipoNorm = (tipo||'').toLowerCase().includes('novo') ? 'novo' : 'antigo';
+      map.set(contrato.trim(), { tipo: tipoNorm, valorPonto });
+    });
+    contratosCache = map;
+    return map;
+  })();
+
+  return contratosCacheLoading;
+}
+
+function setContratoStatus(msg, kind){
+  contratoStatusEl.textContent = msg;
+  contratoStatusEl.style.color = kind==='error' ? 'var(--warn)' : kind==='ok' ? 'var(--accent-deep)' : '#93998f';
+}
+
+let buscaContratoTimer = null;
+contratoEl.addEventListener('input', ()=>{
+  clearTimeout(buscaContratoTimer);
+  const val = contratoEl.value.trim();
+  if(!val){ setContratoStatus('\u00a0', null); return; }
+  setContratoStatus('Buscando contrato…', null);
+  buscaContratoTimer = setTimeout(async ()=>{
+    try{
+      const map = await carregarContratos();
+      const found = map.get(val);
+      if(found){
+        modeloSel.value = found.tipo;
+        popularCategorias();
+        valorPontoEl.value = found.valorPonto;
+        setContratoStatus(`Encontrado · contrato ${found.tipo === 'novo' ? 'Novo' : 'Antigo'} · ponto ${found.valorPonto}`, 'ok');
+      } else {
+        setContratoStatus('Contrato não encontrado na planilha — preencha manualmente.', 'error');
+      }
+    }catch(e){
+      setContratoStatus(e.message, 'error');
+    }
+  }, 500);
+});
+
+// ===================== UI: período =====================
+const periodoEl = document.getElementById('periodo');
+const checkinEl = document.getElementById('checkin');
+const checkoutEl = document.getElementById('checkout');
+const temporadaEl = document.getElementById('temporada');
+const calendarPanel = document.getElementById('calendarPanel');
+
+let calMonth = new Date();
+let selStart = null, selEnd = null;
+
+function renderCalendar(){
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  const first = new Date(y, m, 1);
+  const startDow = first.getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const monthName = first.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+
+  let html = `<div class="cal-head">
+    <button type="button" class="cal-nav" id="calPrev">‹</button>
+    <strong>${monthName}</strong>
+    <button type="button" class="cal-nav" id="calNext">›</button>
+  </div>
+  <div class="cal-grid">
+    <span class="cal-dow">D</span><span class="cal-dow">S</span><span class="cal-dow">T</span><span class="cal-dow">Q</span><span class="cal-dow">Q</span><span class="cal-dow">S</span><span class="cal-dow">S</span>`;
+
+  for(let i=0;i<startDow;i++) html += `<span></span>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let style = '';
+    if(selStart && iso===selStart){ style='background:var(--accent);color:#fff;'; }
+    else if(selEnd && iso===selEnd){ style='background:var(--accent);color:#fff;'; }
+    else if(selStart && selEnd && iso>selStart && iso<selEnd){ style='background:var(--accent-soft);'; }
+    html += `<button type="button" class="cal-day" data-iso="${iso}" style="${style}">${d}</button>`;
+  }
+  html += `</div>`;
+  calendarPanel.innerHTML = html;
+
+  calendarPanel.querySelector('#calPrev').onclick = ()=>{ calMonth = new Date(y, m-1, 1); renderCalendar(); };
+  calendarPanel.querySelector('#calNext').onclick = ()=>{ calMonth = new Date(y, m+1, 1); renderCalendar(); };
+  calendarPanel.querySelectorAll('.cal-day').forEach(btn=>{
+    btn.onclick = ()=>{
+      const iso = btn.dataset.iso;
+      if(!selStart || (selStart && selEnd)){
+        selStart = iso; selEnd = null;
+      } else if(iso < selStart){
+        selStart = iso;
+      } else {
+        selEnd = iso;
+      }
+      atualizarPeriodoCampo();
+      renderCalendar();
+      if(selStart && selEnd){
+        setTimeout(()=>{ calendarPanel.style.display='none'; }, 150);
+      }
+    };
+  });
+}
+
+function atualizarPeriodoCampo(){
+  checkinEl.value = selStart || '';
+  checkoutEl.value = selEnd || '';
+  periodoEl.value = selStart ? `${formatDateBR(selStart)}${selEnd ? ' → '+formatDateBR(selEnd) : ' → ...'}` : '';
+  atualizarTemporada();
+}
+
+periodoEl.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  calendarPanel.style.display = calendarPanel.style.display==='none' ? 'block' : 'none';
+  renderCalendar();
+});
+document.addEventListener('click', (e)=>{
+  if(!periodoEl.parentElement.contains(e.target)) calendarPanel.style.display = 'none';
+});
+
+function atualizarTemporada(){
+  if(!checkinEl.value){ temporadaEl.value=''; return; }
+  const t = temporadaDaData(checkinEl.value);
+  temporadaEl.value = t ? `${SEASON_LABELS[t.season]} — ${t.label}` : 'fora do calendário cadastrado';
+}
+
+// ===================== UI: crianças / idades inline =====================
+const criancasEl = document.getElementById('criancas');
+const idadesInline = document.getElementById('idadesInline');
+
+function popularIdades(){
+  const n = parseInt(criancasEl.value,10) || 0;
+  const valoresAtuais = Array.from(idadesInline.querySelectorAll('select')).map(s=>s.value);
+  idadesInline.innerHTML = '';
+  for(let i=0;i<n;i++){
+    const f = document.createElement('div');
+    f.className = 'f chd-age';
+    const label = document.createElement('label');
+    label.textContent = `Idade ${i+1}`;
+    const sel = document.createElement('select');
+    sel.dataset.idx = i;
+    for(let idade=0; idade<=11; idade++){
+      const opt = document.createElement('option');
+      opt.value = idade;
+      opt.textContent = idade;
+      sel.appendChild(opt);
+    }
+    if(valoresAtuais[i] !== undefined) sel.value = valoresAtuais[i];
+    f.appendChild(label);
+    f.appendChild(sel);
+    idadesInline.appendChild(f);
+  }
+}
+criancasEl.addEventListener('change', popularIdades);
+popularIdades();
+
+function getIdadesSelecionadas(){
+  return Array.from(idadesInline.querySelectorAll('select')).map(s=>parseInt(s.value,10));
+}
+
+// ===================== Cálculo principal =====================
+const resultadoEl = document.getElementById('resultado');
+const erroEl = document.getElementById('erroMsg');
+
+function formatBRL(v){ return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
+function formatPts(v){ return v.toLocaleString('pt-BR', {maximumFractionDigits:2}); }
+
+function showError(msg){
+  erroEl.textContent = msg;
+  erroEl.classList.toggle('show', !!msg);
+}
+
+document.getElementById('btnCalcular').addEventListener('click', ()=>{
+  showError('');
+  try{
+    const contrato = document.getElementById('contrato').value.trim();
+    const resort = resortSel.value;
+    const modelo = modeloSel.value;
+    const valorPonto = parseFloat(document.getElementById('valorPonto').value);
+    const checkin = checkinEl.value;
+    const checkout = checkoutEl.value;
+    const adultos = parseInt(document.getElementById('adultos').value, 10);
+    const numCriancas = parseInt(criancasEl.value, 10) || 0;
+    const idades = getIdadesSelecionadas();
+    const categoriaKey = categoriaSel.value;
+    const tipoPensao = document.getElementById('pensao').value;
+    const aplicarMulta = document.getElementById('multaSexSab').checked;
+
+    if(!contrato) throw new Error('Informe o número do contrato.');
+    if(!valorPonto || valorPonto<=0) throw new Error('Informe o valor do ponto (R$) deste contrato.');
+    if(!checkin || !checkout) throw new Error('Selecione o período (check-in e check-out).');
+    const dIn = parseISO(checkin), dOut = parseISO(checkout);
+    const noites = Math.round((dOut - dIn) / 86400000);
+    if(noites <= 0) throw new Error('Check-out deve ser depois do check-in.');
+    if(!adultos || adultos < 1) throw new Error('Informe a quantidade de adultos.');
+    if(!categoriaKey) throw new Error('Selecione uma categoria de quarto válida para este resort/modelo.');
+
+    const cats = getCategorias(resort, modelo);
+    const catObj = cats.find(c=>c.key===categoriaKey);
+    if(numCriancas > 0 && !catObj.aceitaCHD) throw new Error(`A categoria "${catObj.label}" não aceita CHD (crianças). Escolha outra categoria.`);
+
+    let pensaoEfetiva = tipoPensao;
+    if(resort==='BATBR' && tipoPensao !== 'completa'){
+      pensaoEfetiva = 'completa';
+    }
+
+    // ----- Hospedagem (em pontos) -----
+    let hospedagemPontos = 0;
+    let detalheDiarias = [];
+    let cursor = dIn;
+    let diaIndex = 0;
+    while(diaIndex < noites){
+      const iso = toISO(cursor);
+      const pts = pontosDiaria(resort, modelo, categoriaKey, iso);
+      if(pts == null) throw new Error(`Não há tabela de pontos cadastrada para a data ${formatDateBR(iso)}.`);
+      let valorDia = pts / 7;
+      const dow = dayOfWeek(cursor);
+      const isFridaySat = (dow === 5 || dow === 6);
+      let multaAplicada = false;
+      if(aplicarMulta && noites !== 7 && isFridaySat){
+        valorDia = valorDia * 1.20;
+        multaAplicada = true;
+      }
+      hospedagemPontos += valorDia;
+      detalheDiarias.push({iso, valorDia, multaAplicada});
+      cursor = addDays(cursor, 1);
+      diaIndex++;
+    }
+
+    // ----- Alimentação / Pensão -----
+    let alimentacaoReais = 0;
+    cursor = dIn; diaIndex = 0;
+    while(diaIndex < noites){
+      const iso = toISO(cursor);
+      const valorPessoaDia = pensaoValorDia(iso, pensaoEfetiva);
+      if(valorPessoaDia == null) throw new Error(`Não há tabela de pensão cadastrada para a data ${formatDateBR(iso)}.`);
+      let totalDia = valorPessoaDia * adultos;
+      idades.forEach(idade=>{
+        if(idade <= CHD_RULE.freeMax) totalDia += 0;
+        else if(idade <= CHD_RULE.halfMax) totalDia += valorPessoaDia * 0.5;
+        else totalDia += valorPessoaDia;
+      });
+      alimentacaoReais += totalDia;
+      cursor = addDays(cursor, 1);
+      diaIndex++;
+    }
+    const alimentacaoPontos = alimentacaoReais / valorPonto;
+
+    // ----- Taxa de Utilização -----
+    let taxaUtilizacaoReaisDia = 0;
+    if(modelo==='antigo' && resort==='BATBR'){
+      taxaUtilizacaoReaisDia = 0;
+    } else {
+      taxaUtilizacaoReaisDia = adultos >= 3 ? TAXA_UTILIZACAO.adultos3 : TAXA_UTILIZACAO.adultos2;
+    }
+    const taxaUtilizacaoReaisTotal = taxaUtilizacaoReaisDia * noites;
+    const taxaUtilizacaoPontos = valorPonto>0 ? taxaUtilizacaoReaisTotal / valorPonto : 0;
+
+    // ----- Totais -----
+    const totalReservaPontos = hospedagemPontos + alimentacaoPontos + taxaUtilizacaoPontos;
+    const hospedagemReais = hospedagemPontos * valorPonto;
+    const taxaReais = taxaUtilizacaoReaisTotal;
+    const totalAFaturarReais = alimentacaoReais + hospedagemReais;
+
+    // ----- Render -----
+    const t0 = temporadaDaData(checkin);
+    let out = '';
+    out += `CONTRATO ${contrato}   ·   ${resort}   ·   MODELO ${modelo.toUpperCase()}\n`;
+    out += `Período: ${formatDateBR(checkin)} a ${formatDateBR(checkout)}  (${noites} noite${noites>1?'s':''})\n`;
+    out += `Temporada de entrada: ${t0 ? SEASON_LABELS[t0.season]+' — '+t0.label : '—'}\n`;
+    out += `Ocupação: ${adultos} adulto(s)` + (numCriancas>0 ? ` + ${numCriancas} criança(s) (${idades.join(', ')} anos)` : '') + `\n`;
+    out += `Categoria: ${catObj.label}   ·   Pensão: ${pensaoEfetiva}` + (pensaoEfetiva!==tipoPensao ? '  [travado em Pensão Completa — regra Bourbon Resort Atibaia]' : '') + `\n`;
+    out += `Valor do ponto: ${valorPonto.toFixed(7)}\n`;
+    out += `Acréscimo 20% sex/sáb: ${aplicarMulta ? 'cobrado' : 'não cobrado (cortesia/negociado)'}\n`;
+    out += `\n— HOSPEDAGEM —\n`;
+    detalheDiarias.forEach(d=>{
+      out += `  ${formatDateBR(d.iso)}: ${formatPts(d.valorDia)} pts${d.multaAplicada ? '  (+20% sex/sáb)' : ''}\n`;
+    });
+    out += `  Subtotal: ${formatPts(hospedagemPontos)} pts  (${formatBRL(hospedagemReais)})\n`;
+    out += `\n— ALIMENTAÇÃO (Pensão) —\n`;
+    out += `  Total em reais: ${formatBRL(alimentacaoReais)}\n`;
+    out += `  Total em pontos: ${formatPts(alimentacaoPontos)} pts\n`;
+    out += `\n— TAXA DE UTILIZAÇÃO —\n`;
+    if(taxaUtilizacaoReaisDia===0){
+      out += `  Isento (Contrato Antigo + BATBR)\n`;
+    } else {
+      out += `  ${formatBRL(taxaUtilizacaoReaisDia)}/dia × ${noites} noites = ${formatBRL(taxaUtilizacaoReaisTotal)}\n`;
+      out += `  Em pontos: ${formatPts(taxaUtilizacaoPontos)} pts\n`;
+    }
+    out += `\nTOTAL DA RESERVA: ${formatPts(totalReservaPontos)} pts\n`;
+    out += `\n— INFORMAÇÕES PARA FATURAMENTO —\n`;
+    out += `  Valor Pago Cliente BDC (hospedagem em R$): ${formatBRL(hospedagemReais)}\n`;
+    out += `  Taxa (R$): ${formatBRL(taxaReais)}\n`;
+    out += `  Alimentação (R$): ${formatBRL(alimentacaoReais)}\n`;
+    out += `  Total a Faturar (aprox., sem tabela de repasse detalhada): ${formatBRL(totalAFaturarReais)}\n`;
+
+    resultadoEl.textContent = out;
+    resultadoEl.classList.remove('result-empty');
+    resultadoEl.classList.add('result-content');
+  }catch(e){
+    showError(e.message);
+  }
+});
+
+document.getElementById('btnLimpar').addEventListener('click', ()=>{
+  document.getElementById('contrato').value = '';
+  document.getElementById('valorPonto').value = '';
+  document.getElementById('adultos').value = 2;
+  criancasEl.value = 0;
+  popularIdades();
+  document.getElementById('multaSexSab').checked = false;
+  selStart = null; selEnd = null;
+  atualizarPeriodoCampo();
+  resultadoEl.textContent = 'Preencha os campos acima e clique em "Calcular orçamento".';
+  resultadoEl.classList.add('result-empty');
+  resultadoEl.classList.remove('result-content');
+  showError('');
+});
+
+document.getElementById('btnCopiar').addEventListener('click', ()=>{
+  navigator.clipboard.writeText(resultadoEl.textContent).then(()=>{
+    erroEl.style.color = 'var(--accent-deep)';
+    erroEl.textContent = 'Orçamento copiado para a área de transferência.';
+    erroEl.classList.add('show');
+    setTimeout(()=>{ erroEl.classList.remove('show'); erroEl.style.color=''; }, 2500);
+  });
+});
+</script>
+</body>
+</html>
