@@ -162,7 +162,8 @@
       </div>
       <div class="f w-md">
         <label>Modelo de contrato</label>
-        <select id="modelo">
+        <input id="modeloDisplay" type="text" readonly placeholder="preenchido pelo contrato" style="background:#f2f3f0;color:#5b6a63;">
+        <select id="modelo" style="display:none;">
           <option value="antigo">Antigo</option>
           <option value="novo">Novo</option>
         </select>
@@ -482,8 +483,14 @@ function popularCategorias(){
   });
 }
 resortSel.addEventListener('change', popularCategorias);
-modeloSel.addEventListener('change', popularCategorias);
 popularCategorias();
+
+const modeloDisplayEl = document.getElementById('modeloDisplay');
+function setModelo(valor){
+  modeloSel.value = valor;
+  modeloDisplayEl.value = valor === 'novo' ? 'Novo' : 'Antigo';
+  popularCategorias();
+}
 
 // ===================== Lookup automático de Contrato (planilha pública) =====================
 const SHEET_ID = '1TeGcQRgamcvreZxdgqMkBEhUo3z8d9V4';
@@ -560,8 +567,7 @@ contratoEl.addEventListener('input', ()=>{
       const map = await carregarContratos();
       const found = map.get(val);
       if(found){
-        modeloSel.value = found.tipo;
-        popularCategorias();
+        setModelo(found.tipo);
         valorPontoEl.value = found.valorPonto;
         setContratoStatus(`Encontrado · contrato ${found.tipo === 'novo' ? 'Novo' : 'Antigo'} · ponto ${found.valorPonto}`, 'ok');
       } else {
@@ -642,6 +648,9 @@ periodoEl.addEventListener('click', (e)=>{
   e.stopPropagation();
   calendarPanel.style.display = calendarPanel.style.display==='none' ? 'block' : 'none';
   renderCalendar();
+});
+calendarPanel.addEventListener('click', (e)=>{
+  e.stopPropagation();
 });
 document.addEventListener('click', (e)=>{
   if(!periodoEl.parentElement.contains(e.target)) calendarPanel.style.display = 'none';
@@ -838,6 +847,8 @@ document.getElementById('btnLimpar').addEventListener('click', ()=>{
   criancasEl.value = 0;
   popularIdades();
   document.getElementById('multaSexSab').checked = false;
+  modeloDisplayEl.value = '';
+  setContratoStatus('\u00a0', null);
   selStart = null; selEnd = null;
   atualizarPeriodoCampo();
   resultadoEl.textContent = 'Preencha os campos acima e clique em "Calcular orçamento".';
