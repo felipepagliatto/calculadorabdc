@@ -326,73 +326,69 @@ const PENSAO_BIGUR = {
 
 const CHD_RULE = { freeMax: 5, halfMax: 11 };
 
+// Categorias: cada tipo de quarto com suas ocupações possíveis
+// ocupacoes: lista de nº de adultos suportados; aceitaCHD: se permite crianças
 const CATEGORIAS_BATBR = [
-  { key: 'duplo_superior', label: 'Duplo Superior', adultos: 2, aceitaCHD: true },
-  { key: 'triplo_superior', label: 'Triplo Superior', adultos: 3, aceitaCHD: true },
-  { key: 'duplo_superior_plus', label: 'Duplo Superior Plus', adultos: 2, aceitaCHD: true },
-  { key: 'triplo_superior_plus', label: 'Triplo Superior Plus', adultos: 3, aceitaCHD: true },
-  { key: 'duplo_premier', label: 'Duplo Premier', adultos: 2, aceitaCHD: false },
-  { key: 'triplo_premier', label: 'Triplo Premier', adultos: 3, aceitaCHD: false },
-  { key: 'classic_duplo', label: 'Classic Duplo', adultos: 2, aceitaCHD: false },
+  { key: 'superior',      label: 'Superior',       ocupacoes: [2, 3], aceitaCHD: true  },
+  { key: 'superior_plus', label: 'Superior Plus',  ocupacoes: [2, 3], aceitaCHD: true  },
+  { key: 'premier',       label: 'Premier',        ocupacoes: [2, 3], aceitaCHD: false },
+  { key: 'classic',       label: 'Classic',        ocupacoes: [2],    aceitaCHD: false },
 ];
-const PONTOS_ANTIGO_BATBR = {
-  especial: { duplo_superior: 80977, triplo_superior: 91512, duplo_superior_plus: 87455, triplo_superior_plus: 98833, duplo_premier: 89922, triplo_premier: 102281, classic_duplo: 132176 },
-  superalta: { duplo_superior: 62512, triplo_superior: 68724, duplo_superior_plus: 67513, triplo_superior_plus: 74222, duplo_premier: 69966, triplo_premier: 77747, classic_duplo: 107826 },
-  alta: { duplo_superior: 50742, triplo_superior: 54665, duplo_superior_plus: 54801.36, triplo_superior_plus: 59038.2, duplo_premier: 57150, triplo_premier: 62381, classic_duplo: 91152 },
-  media: { duplo_superior: 32041, triplo_superior: 32237, duplo_superior_plus: 34604, triplo_superior_plus: 34815.96, duplo_premier: 36814, triplo_premier: 37926, classic_duplo: 64604 },
-};
-const PONTOS_ANTIGO_BATBR_REVEILLON = { duplo_superior: 103046, triplo_superior: 118053, duplo_superior_plus: 111290, triplo_superior_plus: 127497, duplo_premier: 113992, triplo_premier: 131176, classic_duplo: 162544 };
-const PONTOS_ANTIGO_BATBR_NATAL = { duplo_superior: 80977, triplo_superior: 91512, duplo_superior_plus: 87455, triplo_superior_plus: 98833, duplo_premier: 89922, triplo_premier: 102281, classic_duplo: 132176 };
-const PONTOS_ANTIGO_BATBR_PASCOA_CORPUS = { duplo_superior: 54665, triplo_superior: 59373, duplo_superior_plus: 59038, triplo_superior_plus: 64123, duplo_premier: 61466, triplo_premier: 67457, classic_duplo: 96776 };
-const PONTOS_ANTIGO_BATBR_JANEIRO = { duplo_superior: 37926, triplo_superior: 39299, duplo_superior_plus: 40960.08, triplo_superior_plus: 42442.92, duplo_premier: 43222, triplo_premier: 45641, classic_duplo: 72974 };
 
 const CATEGORIAS_BATBR_NOVO = [
-  { key: 'duplo_superior', label: 'Duplo Superior', adultos: 2, aceitaCHD: true },
-  { key: 'triplo_superior', label: 'Triplo Superior', adultos: 3, aceitaCHD: true },
-  { key: 'duplo_superior_plus', label: 'Duplo Superior Plus', adultos: 2, aceitaCHD: true },
-  { key: 'triplo_superior_plus', label: 'Triplo Superior Plus', adultos: 3, aceitaCHD: true },
-  { key: 'duplo_premier', label: 'Duplo Premier', adultos: 2, aceitaCHD: false },
-  { key: 'triplo_premier', label: 'Triplo Premier', adultos: 3, aceitaCHD: false },
-  { key: 'suite_classic', label: 'Suíte Classic', adultos: 2, aceitaCHD: false },
+  { key: 'superior',      label: 'Superior',       ocupacoes: [2, 3], aceitaCHD: true  },
+  { key: 'superior_plus', label: 'Superior Plus',  ocupacoes: [2, 3], aceitaCHD: true  },
+  { key: 'premier',       label: 'Premier',        ocupacoes: [2, 3], aceitaCHD: false },
+  { key: 'suite_classic', label: 'Suíte Classic',  ocupacoes: [2],    aceitaCHD: false },
 ];
-const PONTOS_NOVO_BATBR_REVEILLON = { duplo_superior: 79889, triplo_superior: 83281, duplo_superior_plus: 83370, triplo_superior_plus: 86761, duplo_premier: 87654, triplo_premier: 91045, suite_classic: 98364 };
-const PONTOS_NOVO_BATBR_NATAL = { duplo_superior: 71485, triplo_superior: 74876, duplo_superior_plus: 74966, triplo_superior_plus: 78357, duplo_premier: 79250, triplo_premier: 82641, suite_classic: 89960 };
-const PONTOS_NOVO_BATBR_CARNAVAL = { duplo_superior: 53624, triplo_superior: 57016, duplo_superior_plus: 57105, triplo_superior_plus: 60497, duplo_premier: 61389, triplo_premier: 64781, suite_classic: 72099 };
-const PONTOS_NOVO_BATBR_TRABALHO = { duplo_superior: 42569, triplo_superior: 45960, duplo_superior_plus: 46049, triplo_superior_plus: 49441, duplo_premier: 50333, triplo_premier: 53725, suite_classic: 61043 };
-const PONTOS_NOVO_BATBR_FEVEREIRO = { duplo_superior: 38465, triplo_superior: 41857, duplo_superior_plus: 41946, triplo_superior_plus: 45337, duplo_premier: 46230, triplo_premier: 49621, suite_classic: 56941 };
 
 const CATEGORIAS_BIGUR_ANTIGO = [
-  { key: 'duplo_sup_jardim', label: 'Duplo Superior Vista Jardim', adultos: 2, aceitaCHD: true },
-  { key: 'triplo_sup_jardim', label: 'Triplo Superior Vista Jardim', adultos: 3, aceitaCHD: true },
-  { key: 'familia_sup_jardim', label: 'Família Superior Vista Jardim', adultos: 4, aceitaCHD: true },
-  { key: 'duplo_sup_piscina', label: 'Duplo Superior Vista Piscina', adultos: 2, aceitaCHD: true },
-  { key: 'triplo_sup_piscina', label: 'Triplo Superior Vista Piscina', adultos: 3, aceitaCHD: true },
-  { key: 'duplo_premier', label: 'Duplo Premier', adultos: 2, aceitaCHD: false },
-  { key: 'triplo_premier', label: 'Triplo Premier', adultos: 3, aceitaCHD: false },
-  { key: 'duplo_premier_plus', label: 'Duplo Premier Plus', adultos: 2, aceitaCHD: false },
-  { key: 'triplo_premier_plus', label: 'Triplo Premier Plus', adultos: 3, aceitaCHD: false },
+  { key: 'sup_jardim',    label: 'Superior Vista Jardim',  ocupacoes: [2, 3, 4], aceitaCHD: true  },
+  { key: 'sup_piscina',   label: 'Superior Vista Piscina', ocupacoes: [2, 3],    aceitaCHD: true  },
+  { key: 'premier',       label: 'Premier',                ocupacoes: [2, 3],    aceitaCHD: false },
+  { key: 'premier_plus',  label: 'Premier Plus',           ocupacoes: [2, 3],    aceitaCHD: false },
 ];
-const PONTOS_ANTIGO_BIGUR_REVEILLON = { duplo_sup_jardim: 59937, triplo_sup_jardim: 69668, familia_sup_jardim: 104432, duplo_sup_piscina: 63984, triplo_sup_piscina: 74526, duplo_premier: 69103, triplo_premier: 80488, duplo_premier_plus: 74221, triplo_premier_plus: 86450 };
-const PONTOS_ANTIGO_BIGUR_NATAL = { duplo_sup_jardim: 43622, triplo_sup_jardim: 50116, familia_sup_jardim: 76660, duplo_sup_piscina: 46736, triplo_sup_piscina: 53790, duplo_premier: 50475, triplo_premier: 58093, duplo_premier_plus: 54214, triplo_premier_plus: 62396 };
-const PONTOS_ANTIGO_BIGUR_JANEIRO = { duplo_sup_jardim: 26249, triplo_sup_jardim: 29255, familia_sup_jardim: 47143, duplo_sup_piscina: 28304, triplo_sup_piscina: 31684, duplo_premier: 30568, triplo_premier: 34219, duplo_premier_plus: 32833, triplo_premier_plus: 36753 };
-const PONTOS_ANTIGO_BIGUR_FEVEREIRO = { duplo_sup_jardim: 24755, triplo_sup_jardim: 27387, familia_sup_jardim: 44529, duplo_sup_piscina: 26686, triplo_sup_piscina: 29753, duplo_premier: 28821, triplo_premier: 32133, duplo_premier_plus: 30956, triplo_premier_plus: 34513 };
 
 const CATEGORIAS_BIGUR_NOVO = [
-  { key: 'duplo_sup_jardim', label: 'Duplo Superior Vista Jardim', adultos: 2, aceitaCHD: true },
-  { key: 'triplo_sup_jardim', label: 'Triplo Superior Vista Jardim', adultos: 3, aceitaCHD: true },
-  { key: 'duplo_sup_piscina', label: 'Duplo Superior Vista Piscina', adultos: 2, aceitaCHD: true },
-  { key: 'triplo_sup_piscina', label: 'Triplo Superior Vista Piscina', adultos: 3, aceitaCHD: true },
-  { key: 'duplo_premier', label: 'Duplo Premier', adultos: 2, aceitaCHD: false },
-  { key: 'triplo_premier', label: 'Triplo Premier', adultos: 3, aceitaCHD: false },
-  { key: 'duplo_premier_plus', label: 'Duplo Premier Plus', adultos: 2, aceitaCHD: false },
-  { key: 'triplo_premier_plus', label: 'Triplo Premier Plus', adultos: 3, aceitaCHD: false },
-  { key: 'suite_classic', label: 'Suíte Classic', adultos: 2, aceitaCHD: false },
+  { key: 'sup_jardim',    label: 'Superior Vista Jardim',  ocupacoes: [2, 3],    aceitaCHD: true  },
+  { key: 'sup_piscina',   label: 'Superior Vista Piscina', ocupacoes: [2, 3],    aceitaCHD: true  },
+  { key: 'premier',       label: 'Premier',                ocupacoes: [2, 3],    aceitaCHD: false },
+  { key: 'premier_plus',  label: 'Premier Plus',           ocupacoes: [2, 3],    aceitaCHD: false },
+  { key: 'suite_classic', label: 'Suíte Classic',          ocupacoes: [2],       aceitaCHD: false },
 ];
-const PONTOS_NOVO_BIGUR_REVEILLON = { duplo_sup_jardim: 63936, triplo_sup_jardim: 66292, duplo_sup_piscina: 69023, triplo_sup_piscina: 71379, duplo_premier: 71700, triplo_premier: 74057, duplo_premier_plus: 77436, triplo_premier_plus: 79982, suite_classic: 101421 };
-const PONTOS_NOVO_BIGUR_NATAL = { duplo_sup_jardim: 34332, triplo_sup_jardim: 36688, duplo_sup_piscina: 39419, triplo_sup_piscina: 41775, duplo_premier: 42096, triplo_premier: 44452, duplo_premier_plus: 45464, triplo_premier_plus: 48008, suite_classic: 71817 };
-const PONTOS_NOVO_BIGUR_CARNAVAL = { duplo_sup_jardim: 32076, triplo_sup_jardim: 34432, duplo_sup_piscina: 37163, triplo_sup_piscina: 39519, duplo_premier: 39840, triplo_premier: 42197, duplo_premier_plus: 43027, triplo_premier_plus: 45573, suite_classic: 69561 };
-const PONTOS_NOVO_BIGUR_TRABALHO = { duplo_sup_jardim: 27230, triplo_sup_jardim: 29586, duplo_sup_piscina: 32317, triplo_sup_piscina: 34674, duplo_premier: 34995, triplo_premier: 37351, duplo_premier_plus: 37795, triplo_premier_plus: 40339, suite_classic: 64715 };
-const PONTOS_NOVO_BIGUR_FEVEREIRO = { duplo_sup_jardim: 22979, triplo_sup_jardim: 25335, duplo_sup_piscina: 28066, triplo_sup_piscina: 30422, duplo_premier: 30744, triplo_premier: 33100, duplo_premier_plus: 33204, triplo_premier_plus: 35748, suite_classic: 60464 };
+
+// Pontos indexados por [chave_tipo][numAdultos]
+// BATBR Antigo
+const PONTOS_ANTIGO_BATBR = {
+  especial:  { superior: {2:80977, 3:91512}, superior_plus: {2:87455, 3:98833}, premier: {2:89922, 3:102281}, classic: {2:132176} },
+  superalta: { superior: {2:62512, 3:68724}, superior_plus: {2:67513, 3:74222}, premier: {2:69966, 3:77747},  classic: {2:107826} },
+  alta:      { superior: {2:50742, 3:54665}, superior_plus: {2:54801.36, 3:59038.2}, premier: {2:57150, 3:62381}, classic: {2:91152} },
+  media:     { superior: {2:32041, 3:32237}, superior_plus: {2:34604, 3:34815.96}, premier: {2:36814, 3:37926}, classic: {2:64604} },
+};
+const PONTOS_ANTIGO_BATBR_REVEILLON   = { superior: {2:103046, 3:118053}, superior_plus: {2:111290, 3:127497}, premier: {2:113992, 3:131176}, classic: {2:162544} };
+const PONTOS_ANTIGO_BATBR_NATAL       = { superior: {2:80977,  3:91512},  superior_plus: {2:87455,  3:98833},  premier: {2:89922,  3:102281}, classic: {2:132176} };
+const PONTOS_ANTIGO_BATBR_PASCOA_CORPUS = { superior: {2:54665, 3:59373}, superior_plus: {2:59038, 3:64123},  premier: {2:61466,  3:67457},  classic: {2:96776}  };
+const PONTOS_ANTIGO_BATBR_JANEIRO     = { superior: {2:37926,  3:39299},  superior_plus: {2:40960.08, 3:42442.92}, premier: {2:43222, 3:45641}, classic: {2:72974} };
+
+// BATBR Novo
+const PONTOS_NOVO_BATBR_REVEILLON = { superior: {2:79889, 3:83281}, superior_plus: {2:83370, 3:86761}, premier: {2:87654, 3:91045}, suite_classic: {2:98364} };
+const PONTOS_NOVO_BATBR_NATAL     = { superior: {2:71485, 3:74876}, superior_plus: {2:74966, 3:78357}, premier: {2:79250, 3:82641}, suite_classic: {2:89960} };
+const PONTOS_NOVO_BATBR_CARNAVAL  = { superior: {2:53624, 3:57016}, superior_plus: {2:57105, 3:60497}, premier: {2:61389, 3:64781}, suite_classic: {2:72099} };
+const PONTOS_NOVO_BATBR_TRABALHO  = { superior: {2:42569, 3:45960}, superior_plus: {2:46049, 3:49441}, premier: {2:50333, 3:53725}, suite_classic: {2:61043} };
+const PONTOS_NOVO_BATBR_FEVEREIRO = { superior: {2:38465, 3:41857}, superior_plus: {2:41946, 3:45337}, premier: {2:46230, 3:49621}, suite_classic: {2:56941} };
+
+// BIGUR Antigo
+const PONTOS_ANTIGO_BIGUR_REVEILLON = { sup_jardim: {2:59937, 3:69668, 4:104432}, sup_piscina: {2:63984, 3:74526}, premier: {2:69103, 3:80488}, premier_plus: {2:74221, 3:86450} };
+const PONTOS_ANTIGO_BIGUR_NATAL     = { sup_jardim: {2:43622, 3:50116, 4:76660},  sup_piscina: {2:46736, 3:53790}, premier: {2:50475, 3:58093}, premier_plus: {2:54214, 3:62396} };
+const PONTOS_ANTIGO_BIGUR_JANEIRO   = { sup_jardim: {2:26249, 3:29255, 4:47143},  sup_piscina: {2:28304, 3:31684}, premier: {2:30568, 3:34219}, premier_plus: {2:32833, 3:36753} };
+const PONTOS_ANTIGO_BIGUR_FEVEREIRO = { sup_jardim: {2:24755, 3:27387, 4:44529},  sup_piscina: {2:26686, 3:29753}, premier: {2:28821, 3:32133}, premier_plus: {2:30956, 3:34513} };
+
+// BIGUR Novo
+const PONTOS_NOVO_BIGUR_REVEILLON = { sup_jardim: {2:63936, 3:66292}, sup_piscina: {2:69023, 3:71379}, premier: {2:71700, 3:74057}, premier_plus: {2:77436, 3:79982}, suite_classic: {2:101421} };
+const PONTOS_NOVO_BIGUR_NATAL     = { sup_jardim: {2:34332, 3:36688}, sup_piscina: {2:39419, 3:41775}, premier: {2:42096, 3:44452}, premier_plus: {2:45464, 3:48008}, suite_classic: {2:71817}  };
+const PONTOS_NOVO_BIGUR_CARNAVAL  = { sup_jardim: {2:32076, 3:34432}, sup_piscina: {2:37163, 3:39519}, premier: {2:39840, 3:42197}, premier_plus: {2:43027, 3:45573}, suite_classic: {2:69561}  };
+const PONTOS_NOVO_BIGUR_TRABALHO  = { sup_jardim: {2:27230, 3:29586}, sup_piscina: {2:32317, 3:34674}, premier: {2:34995, 3:37351}, premier_plus: {2:37795, 3:40339}, suite_classic: {2:64715}  };
+const PONTOS_NOVO_BIGUR_FEVEREIRO = { sup_jardim: {2:22979, 3:25335}, sup_piscina: {2:28066, 3:30422}, premier: {2:30744, 3:33100}, premier_plus: {2:33204, 3:35748}, suite_classic: {2:60464}  };
 
 const TAXA_UTILIZACAO = { adultos2: 58.00, adultos3: 86.00 };
 
@@ -424,22 +420,39 @@ function repasseDiaria(resort, categoriaKey, isoDate){
 
   if(resort === 'BIGUR'){
     const tbl = REPASSE_BIGUR;
-    const fk = { familia_sup_jardim: 'triplo_sup_jardim', duplo_premier_plus: 'duplo_premier' }[categoriaKey] || categoriaKey;
-    if(lbl==='Réveillon')                         return tbl.reveillon[fk];
-    if(lbl==='Natal' || s==='superalta')          return tbl.natal[fk];
-    if(s==='julho1q' || s==='feriado')            return tbl.alta[fk];
-    return tbl.media[fk];
+    // mapear novas chaves para as que existem na tabela de repasse
+    const keyMap = {
+      sup_jardim:   'triplo_sup_jardim',   // usa triplo como base (tabela tem duplo e triplo; tomamos o maior como aprox)
+      sup_piscina:  'triplo_sup_piscina',
+      premier:      'duplo_premier',
+      premier_plus: 'triplo_premier_plus',
+      suite_classic: 'duplo_premier',      // sem coluna própria
+    };
+    const fk = keyMap[categoriaKey] || categoriaKey;
+    if(lbl==='Réveillon')                  return tbl.reveillon[fk] ?? null;
+    if(lbl==='Natal' || s==='superalta')   return tbl.natal[fk] ?? null;
+    if(s==='julho1q' || s==='feriado')     return tbl.alta[fk] ?? null;
+    return tbl.media[fk] ?? null;
   }
 
   if(resort === 'BATBR'){
     const tbl = REPASSE_BATBR;
-    if(lbl==='Réveillon')                         return tbl.reveillon[categoriaKey];
-    if(lbl==='Natal')                             return tbl.natal[categoriaKey];
-    if(lbl==='Carnaval')                          return tbl.carnaval[categoriaKey];
-    if(lbl==='Páscoa')                            return tbl.pascoa[categoriaKey];
-    if(s==='superalta')                           return tbl.nsa_independencia[categoriaKey];
-    if(s==='feriado' || s==='julho1q')            return tbl.alta[categoriaKey];
-    return tbl.media[categoriaKey];
+    // mapear novas chaves para as que existem na tabela de repasse
+    const keyMap = {
+      superior:      'duplo_superior',
+      superior_plus: 'duplo_superior_plus',
+      premier:       'duplo_premier',
+      classic:       'classic_duplo',
+      suite_classic: 'classic_duplo',
+    };
+    const fk = keyMap[categoriaKey] || categoriaKey;
+    if(lbl==='Réveillon')                  return tbl.reveillon[fk] ?? null;
+    if(lbl==='Natal')                      return tbl.natal[fk] ?? null;
+    if(lbl==='Carnaval')                   return tbl.carnaval[fk] ?? null;
+    if(lbl==='Páscoa')                     return tbl.pascoa[fk] ?? null;
+    if(s==='superalta')                    return tbl.nsa_independencia[fk] ?? null;
+    if(s==='feriado' || s==='julho1q')     return tbl.alta[fk] ?? null;
+    return tbl.media[fk] ?? null;
   }
   return null;
 }
@@ -464,64 +477,47 @@ function getCategorias(resort, modelo){
   return modelo==='antigo' ? CATEGORIAS_BIGUR_ANTIGO : CATEGORIAS_BIGUR_NOVO;
 }
 
-function pontosDiaria(resort, modelo, categoriaKey, isoDate){
+function pontosDiaria(resort, modelo, categoriaKey, numAdultos, isoDate){
   const t = temporadaDaData(isoDate);
   if(!t) return null;
   const s = t.season;
   const lbl = t.label;
 
-  // ── BATBR Antigo ──────────────────────────────────────────────────────────
-  // Super Alta: Réveillon, Natal, Carnaval, Páscoa/Corpus Christi
-  // Feriados (âncora Dia do Trabalho): Independência, NSA, Finados, Proclamação, Dia Crianças, Consciência Negra
-  // Alta (âncora Janeiro): 1ª quinz. Janeiro, Julho, Dezembro
-  // Média: demais
+  function lookup(tbl){
+    const row = tbl?.[categoriaKey];
+    return row?.[numAdultos] ?? null;
+  }
+
   if(resort==='BATBR' && modelo==='antigo'){
-    if(lbl==='Réveillon')                                                return PONTOS_ANTIGO_BATBR_REVEILLON[categoriaKey];
-    if(lbl==='Natal')                                                    return PONTOS_ANTIGO_BATBR_NATAL[categoriaKey];
-    if(lbl==='Carnaval')                                                 return PONTOS_ANTIGO_BATBR[s][categoriaKey]; // superalta âncora Carnaval
-    if(lbl==='Páscoa' || lbl==='Corpus Christi')                        return PONTOS_ANTIGO_BATBR_PASCOA_CORPUS[categoriaKey];
-    if(s==='feriado')                                                    return PONTOS_ANTIGO_BATBR.alta[categoriaKey]; // Dia Trabalho âncora
-    if(lbl==='1ª quinz. Janeiro' || s==='julho1q')                      return PONTOS_ANTIGO_BATBR_JANEIRO[categoriaKey]; // Alta âncora Janeiro
-    return PONTOS_ANTIGO_BATBR.media[categoriaKey];
+    if(lbl==='Réveillon')                     return lookup(PONTOS_ANTIGO_BATBR_REVEILLON);
+    if(lbl==='Natal')                         return lookup(PONTOS_ANTIGO_BATBR_NATAL);
+    if(lbl==='Páscoa'||lbl==='Corpus Christi') return lookup(PONTOS_ANTIGO_BATBR_PASCOA_CORPUS);
+    if(lbl==='1ª quinz. Janeiro'||s==='julho1q') return lookup(PONTOS_ANTIGO_BATBR_JANEIRO);
+    if(s==='feriado')                         return lookup(PONTOS_ANTIGO_BATBR.alta);
+    return lookup(PONTOS_ANTIGO_BATBR[s] || PONTOS_ANTIGO_BATBR.media);
   }
-
-  // ── BATBR Novo ────────────────────────────────────────────────────────────
-  // Super Alta: Réveillon, Natal, Carnaval, Páscoa, NSA, Independência, 1ª quinz. Janeiro, Dezembro 2ª quinz., Julho
-  // Alta (âncora Dia do Trabalho): Dia do Trabalho, Tiradentes, Janeiro 2ª quinz., Consciência Negra, Corpus Christi, Proclamação, Dezembro 1ª quinz.
-  // Média: demais
   if(resort==='BATBR' && modelo==='novo'){
-    if(lbl==='Réveillon')                                                return PONTOS_NOVO_BATBR_REVEILLON[categoriaKey];
-    if(lbl==='Natal')                                                    return PONTOS_NOVO_BATBR_NATAL[categoriaKey];
-    if(s==='superalta' || s==='julho1q' || s==='feriado' && (lbl==='Independência' || lbl.includes('NSA') || lbl.includes('Aparecida')))
-                                                                         return PONTOS_NOVO_BATBR_CARNAVAL[categoriaKey]; // superalta âncora Carnaval
-    if(s==='feriado')                                                    return PONTOS_NOVO_BATBR_TRABALHO[categoriaKey]; // Alta âncora Trabalho
-    return PONTOS_NOVO_BATBR_FEVEREIRO[categoriaKey];
+    if(lbl==='Réveillon')                     return lookup(PONTOS_NOVO_BATBR_REVEILLON);
+    if(lbl==='Natal')                         return lookup(PONTOS_NOVO_BATBR_NATAL);
+    if(s==='superalta'||s==='julho1q'||(s==='feriado'&&(lbl==='Independência'||lbl.includes('NSA')||lbl.includes('Aparecida'))))
+                                              return lookup(PONTOS_NOVO_BATBR_CARNAVAL);
+    if(s==='feriado')                         return lookup(PONTOS_NOVO_BATBR_TRABALHO);
+    return lookup(PONTOS_NOVO_BATBR_FEVEREIRO);
   }
-
-  // ── BIGUR Antigo ──────────────────────────────────────────────────────────
-  // Super Alta: Réveillon, Natal (sem Carnaval/Páscoa que estão vazios = usa âncora Natal)
-  // Alta (âncora Janeiro): Janeiro, Julho, Dezembro
-  // Média: demais (Carnaval/Páscoa/Corpus/Feriados = Média pois células vazias no BIGUR Antigo)
   if(resort==='BIGUR' && modelo==='antigo'){
-    if(lbl==='Réveillon')                          return PONTOS_ANTIGO_BIGUR_REVEILLON[categoriaKey];
-    if(lbl==='Natal')                              return PONTOS_ANTIGO_BIGUR_NATAL[categoriaKey];
-    if(lbl==='1ª quinz. Janeiro' || s==='julho1q') return PONTOS_ANTIGO_BIGUR_JANEIRO[categoriaKey];
-    return PONTOS_ANTIGO_BIGUR_FEVEREIRO[categoriaKey];
+    if(lbl==='Réveillon')                     return lookup(PONTOS_ANTIGO_BIGUR_REVEILLON);
+    if(lbl==='Natal')                         return lookup(PONTOS_ANTIGO_BIGUR_NATAL);
+    if(lbl==='1ª quinz. Janeiro'||s==='julho1q') return lookup(PONTOS_ANTIGO_BIGUR_JANEIRO);
+    return lookup(PONTOS_ANTIGO_BIGUR_FEVEREIRO);
   }
-
-  // ── BIGUR Novo ────────────────────────────────────────────────────────────
-  // Super Alta: Réveillon, Natal, Carnaval, Páscoa, Corpus, NSA, Independência, 1ª quinz. Janeiro, Julho, Proclamação
-  // Alta (âncora Dia do Trabalho): Dia do Trabalho, Tiradentes, Janeiro 2ª quinz., Dezembro
-  // Média: demais
   if(resort==='BIGUR' && modelo==='novo'){
-    if(lbl==='Réveillon')                           return PONTOS_NOVO_BIGUR_REVEILLON[categoriaKey];
-    if(lbl==='Natal')                               return PONTOS_NOVO_BIGUR_NATAL[categoriaKey];
-    if(s==='superalta' || s==='julho1q' || s==='feriado' && (lbl==='Independência' || lbl.includes('NSA') || lbl.includes('Aparecida') || lbl==='Proclamação República'))
-                                                    return PONTOS_NOVO_BIGUR_CARNAVAL[categoriaKey];
-    if(s==='feriado')                               return PONTOS_NOVO_BIGUR_TRABALHO[categoriaKey];
-    return PONTOS_NOVO_BIGUR_FEVEREIRO[categoriaKey];
+    if(lbl==='Réveillon')                     return lookup(PONTOS_NOVO_BIGUR_REVEILLON);
+    if(lbl==='Natal')                         return lookup(PONTOS_NOVO_BIGUR_NATAL);
+    if(s==='superalta'||s==='julho1q'||(s==='feriado'&&(lbl==='Independência'||lbl.includes('NSA')||lbl.includes('Aparecida')||lbl==='Proclamação República')))
+                                              return lookup(PONTOS_NOVO_BIGUR_CARNAVAL);
+    if(s==='feriado')                         return lookup(PONTOS_NOVO_BIGUR_TRABALHO);
+    return lookup(PONTOS_NOVO_BIGUR_FEVEREIRO);
   }
-
   return null;
 }
 
@@ -553,19 +549,18 @@ function popularCategorias(){
     return;
   }
 
-  // Filtrar: categoria deve ter capacidade >= adultos E aceitar CHD se houver crianças
+  // Filtrar: categoria deve suportar numAdultos E aceitar CHD se houver crianças
   const disponiveis = cats.filter(c => {
-    if(temCHD && !c.aceitaCHD) return false; // remove quem não aceita CHD
-    if(numAdultos > 0 && c.adultos < numAdultos) return false; // remove quem não comporta
+    if(temCHD && !c.aceitaCHD) return false;
+    if(numAdultos > 0 && !c.ocupacoes.some(o => o >= numAdultos)) return false;
     return true;
   });
 
   if(disponiveis.length === 0){
-    // sem match exato — mostrar todas sem filtro com aviso
     cats.forEach(c=>{
       const opt = document.createElement('option');
       opt.value = c.key;
-      opt.textContent = `${c.label} (${c.adultos} adulto${c.adultos>1?'s':''})`;
+      opt.textContent = c.label;
       categoriaSel.appendChild(opt);
     });
     return;
@@ -574,7 +569,7 @@ function popularCategorias(){
   disponiveis.forEach(c=>{
     const opt = document.createElement('option');
     opt.value = c.key;
-    opt.textContent = `${c.label} (${c.adultos} adulto${c.adultos>1?'s':''})`;
+    opt.textContent = c.label;
     categoriaSel.appendChild(opt);
   });
 }
@@ -857,7 +852,12 @@ document.getElementById('btnCalcular').addEventListener('click', ()=>{
 
     const cats = getCategorias(resort, modelo);
     const catObj = cats.find(c=>c.key===categoriaKey);
-    if(numCriancas > 0 && !catObj.aceitaCHD) throw new Error(`A categoria "${catObj.label}" não aceita CHD (crianças). Escolha outra categoria.`);
+    if(!catObj) throw new Error('Categoria inválida para este resort/modelo.');
+    if(numCriancas > 0 && !catObj.aceitaCHD) throw new Error(`A categoria "${catObj.label}" não aceita crianças. Escolha outra categoria.`);
+
+    // Determinar ocupação efetiva: menor ocupação disponível >= adultos
+    const ocupacaoEfetiva = catObj.ocupacoes.filter(o => o >= adultos).sort((a,b)=>a-b)[0];
+    if(!ocupacaoEfetiva) throw new Error(`A categoria "${catObj.label}" não suporta ${adultos} adultos.`);
 
     let pensaoEfetiva = tipoPensao;
     if(resort==='BATBR' && tipoPensao !== 'completa'){
@@ -871,7 +871,7 @@ document.getElementById('btnCalcular').addEventListener('click', ()=>{
     let diaIndex = 0;
     while(diaIndex < noites){
       const iso = toISO(cursor);
-      const pts = pontosDiaria(resort, modelo, categoriaKey, iso);
+      const pts = pontosDiaria(resort, modelo, categoriaKey, ocupacaoEfetiva, iso);
       if(pts == null) throw new Error(`Não há tabela de pontos cadastrada para a data ${formatDateBR(iso)}.`);
       let valorDia = pts / 7;
       const dow = dayOfWeek(cursor);
