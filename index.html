@@ -540,6 +540,10 @@ const categoriaSel = document.getElementById('categoria');
 
 function popularCategorias(){
   const cats = getCategorias(resortSel.value, modeloSel.value);
+  const numAdultos = parseInt(document.getElementById('adultos').value, 10) || 0;
+  const numCriancas = parseInt(document.getElementById('criancas').value, 10) || 0;
+  const temCHD = numCriancas > 0;
+
   categoriaSel.innerHTML = '';
   if(!cats || cats.length===0){
     const opt = document.createElement('option');
@@ -548,14 +552,37 @@ function popularCategorias(){
     categoriaSel.appendChild(opt);
     return;
   }
-  cats.forEach(c=>{
+
+  // Filtrar: categoria deve ter capacidade >= adultos E aceitar CHD se houver crianças
+  const disponiveis = cats.filter(c => {
+    if(temCHD && !c.aceitaCHD) return false; // remove quem não aceita CHD
+    if(numAdultos > 0 && c.adultos < numAdultos) return false; // remove quem não comporta
+    return true;
+  });
+
+  if(disponiveis.length === 0){
+    // sem match exato — mostrar todas sem filtro com aviso
+    cats.forEach(c=>{
+      const opt = document.createElement('option');
+      opt.value = c.key;
+      opt.textContent = `${c.label} (${c.adultos} adulto${c.adultos>1?'s':''})`;
+      categoriaSel.appendChild(opt);
+    });
+    return;
+  }
+
+  disponiveis.forEach(c=>{
     const opt = document.createElement('option');
     opt.value = c.key;
-    opt.textContent = `${c.label} (${c.adultos} adultos${c.aceitaCHD ? '' : ' — não aceita CHD'})`;
+    opt.textContent = `${c.label} (${c.adultos} adulto${c.adultos>1?'s':''})`;
     categoriaSel.appendChild(opt);
   });
 }
 resortSel.addEventListener('change', ()=>{ popularCategorias(); ajustarPensao(); });
+
+// Atualizar categorias quando adultos ou crianças mudam
+document.getElementById('adultos').addEventListener('input', popularCategorias);
+document.getElementById('criancas').addEventListener('change', popularCategorias);
 popularCategorias();
 
 function ajustarPensao(){
