@@ -551,8 +551,21 @@ function popularCategorias(){
     categoriaSel.appendChild(opt);
   });
 }
-resortSel.addEventListener('change', popularCategorias);
+resortSel.addEventListener('change', ()=>{ popularCategorias(); ajustarPensao(); });
 popularCategorias();
+
+function ajustarPensao(){
+  const pensaoSel = document.getElementById('pensao');
+  if(resortSel.value === 'BATBR'){
+    pensaoSel.value = 'completa';
+    pensaoSel.disabled = true;
+    pensaoSel.title = 'Bourbon Resort Atibaia opera apenas com Pensão Completa';
+  } else {
+    pensaoSel.disabled = false;
+    pensaoSel.title = '';
+  }
+}
+ajustarPensao();
 
 const modeloDisplayEl = document.getElementById('modeloDisplay');
 function setModelo(valor){
