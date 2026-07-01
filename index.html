@@ -251,66 +251,68 @@
 const TEMPORADAS = [
   // 2026
   { start: '2026-01-01', end: '2026-01-17', season: 'superalta', label: '1ª quinz. Janeiro' },
-  { start: '2026-01-18', end: '2026-02-04', season: 'media', label: '2ª quinz. Janeiro' },
+  { start: '2026-01-18', end: '2026-02-04', season: 'media',    label: '2ª quinz. Janeiro' },
   { start: '2026-02-05', end: '2026-02-08', season: 'superalta', label: 'Carnaval' },
+  { start: '2026-02-09', end: '2026-03-25', season: 'media',    label: 'Fevereiro/Março' },
   { start: '2026-03-26', end: '2026-03-27', season: 'superalta', label: 'Páscoa' },
-  { start: '2026-02-09', end: '2026-03-25', season: 'media', label: 'Fevereiro/Março' },
-  { start: '2026-03-28', end: '2026-05-26', season: 'media', label: 'Março/Abril/Maio' },
+  { start: '2026-03-28', end: '2026-05-26', season: 'media',    label: 'Março/Abril/Maio' },
   { start: '2026-05-27', end: '2026-05-29', season: 'superalta', label: 'Corpus Christi' },
-  { start: '2026-05-30', end: '2026-06-30', season: 'media', label: 'Maio/Junho' },
-  { start: '2026-07-01', end: '2026-07-18', season: 'superalta', label: '1ª quinz. Julho' },
-  { start: '2026-07-19', end: '2026-07-31', season: 'media', label: '2ª quinz. Julho' },
-  { start: '2026-08-01', end: '2026-08-31', season: 'media', label: 'Agosto' },
-  { start: '2026-09-01', end: '2026-09-02', season: 'media', label: 'Setembro' },
-  { start: '2026-09-03', end: '2026-09-06', season: 'alta', label: 'Independência' },
-  { start: '2026-09-07', end: '2026-09-30', season: 'media', label: 'Setembro' },
-  { start: '2026-10-01', end: '2026-10-08', season: 'media', label: 'Outubro' },
-  { start: '2026-10-09', end: '2026-10-11', season: 'alta', label: 'Dia das Crianças' },
-  { start: '2026-10-12', end: '2026-10-31', season: 'media', label: 'Outubro' },
-  { start: '2026-10-30', end: '2026-11-01', season: 'alta', label: 'Finados' },
-  { start: '2026-11-02', end: '2026-11-19', season: 'media', label: 'Novembro' },
-  { start: '2026-11-20', end: '2026-11-21', season: 'alta', label: 'Consciência Negra' },
-  { start: '2026-11-22', end: '2026-11-30', season: 'media', label: 'Novembro' },
-  { start: '2026-12-01', end: '2026-12-22', season: 'media', label: 'Dezembro' },
+  { start: '2026-05-30', end: '2026-06-30', season: 'media',    label: 'Maio/Junho' },
+  { start: '2026-07-01', end: '2026-07-18', season: 'julho1q',  label: '1ª quinz. Julho' },
+  { start: '2026-07-19', end: '2026-07-31', season: 'media',    label: '2ª quinz. Julho' },
+  { start: '2026-08-01', end: '2026-08-31', season: 'media',    label: 'Agosto' },
+  { start: '2026-09-01', end: '2026-09-02', season: 'media',    label: 'Setembro' },
+  { start: '2026-09-03', end: '2026-09-06', season: 'feriado',  label: 'Independência' },
+  { start: '2026-09-07', end: '2026-09-30', season: 'media',    label: 'Setembro' },
+  { start: '2026-10-01', end: '2026-10-08', season: 'media',    label: 'Outubro' },
+  { start: '2026-10-09', end: '2026-10-11', season: 'feriado',  label: 'Dia das Crianças' },
+  { start: '2026-10-12', end: '2026-10-29', season: 'media',    label: 'Outubro' },
+  { start: '2026-10-30', end: '2026-11-01', season: 'feriado',  label: 'Finados' },
+  { start: '2026-11-02', end: '2026-11-19', season: 'media',    label: 'Novembro' },
+  { start: '2026-11-20', end: '2026-11-21', season: 'feriado',  label: 'Consciência Negra' },
+  { start: '2026-11-22', end: '2026-11-30', season: 'media',    label: 'Novembro' },
+  { start: '2026-12-01', end: '2026-12-22', season: 'media',    label: 'Dezembro' },
   { start: '2026-12-23', end: '2026-12-27', season: 'especial', label: 'Natal' },
   { start: '2026-12-28', end: '2027-01-03', season: 'especial', label: 'Réveillon' },
   // 2027
   { start: '2027-01-04', end: '2027-01-17', season: 'superalta', label: '1ª quinz. Janeiro' },
-  { start: '2027-01-18', end: '2027-01-31', season: 'media', label: '2ª quinz. Janeiro' },
-  { start: '2027-02-01', end: '2027-02-04', season: 'media', label: 'Fevereiro' },
+  { start: '2027-01-18', end: '2027-01-31', season: 'media',    label: '2ª quinz. Janeiro' },
+  { start: '2027-02-01', end: '2027-02-04', season: 'media',    label: 'Fevereiro' },
   { start: '2027-02-05', end: '2027-02-08', season: 'superalta', label: 'Carnaval' },
-  { start: '2027-02-09', end: '2027-02-28', season: 'media', label: 'Fevereiro' },
-  { start: '2027-03-01', end: '2027-03-25', season: 'media', label: 'Março' },
+  { start: '2027-02-09', end: '2027-02-28', season: 'media',    label: 'Fevereiro' },
+  { start: '2027-03-01', end: '2027-03-25', season: 'media',    label: 'Março' },
   { start: '2027-03-26', end: '2027-03-27', season: 'superalta', label: 'Páscoa' },
-  { start: '2027-03-28', end: '2027-03-31', season: 'media', label: 'Março' },
-  { start: '2027-04-01', end: '2027-04-30', season: 'media', label: 'Abril' },
-  { start: '2027-05-01', end: '2027-05-26', season: 'media', label: 'Maio' },
+  { start: '2027-03-28', end: '2027-03-31', season: 'media',    label: 'Março' },
+  { start: '2027-04-01', end: '2027-04-30', season: 'media',    label: 'Abril' },
+  { start: '2027-05-01', end: '2027-05-26', season: 'media',    label: 'Maio' },
   { start: '2027-05-27', end: '2027-05-29', season: 'superalta', label: 'Corpus Christi' },
-  { start: '2027-05-30', end: '2027-05-31', season: 'media', label: 'Maio' },
-  { start: '2027-06-01', end: '2027-06-30', season: 'media', label: 'Junho' },
-  { start: '2027-07-01', end: '2027-07-18', season: 'superalta', label: '1ª quinz. Julho' },
-  { start: '2027-07-19', end: '2027-07-31', season: 'media', label: '2ª quinz. Julho' },
-  { start: '2027-08-01', end: '2027-08-31', season: 'media', label: 'Agosto' },
-  { start: '2027-09-01', end: '2027-09-02', season: 'media', label: 'Setembro' },
-  { start: '2027-09-03', end: '2027-09-06', season: 'alta', label: 'Independência' },
-  { start: '2027-09-07', end: '2027-09-30', season: 'media', label: 'Setembro' },
-  { start: '2027-10-01', end: '2027-10-07', season: 'media', label: 'Outubro' },
-  { start: '2027-10-08', end: '2027-10-11', season: 'alta', label: 'Dia das Crianças' },
-  { start: '2027-10-12', end: '2027-10-28', season: 'media', label: 'Outubro' },
-  { start: '2027-10-29', end: '2027-11-01', season: 'alta', label: 'Finados' },
-  { start: '2027-11-02', end: '2027-11-11', season: 'media', label: 'Novembro' },
-  { start: '2027-11-12', end: '2027-11-15', season: 'alta', label: 'Proclamação República' },
-  { start: '2027-11-16', end: '2027-11-30', season: 'media', label: 'Novembro' },
-  { start: '2027-12-01', end: '2027-12-22', season: 'media', label: 'Dezembro' },
+  { start: '2027-05-30', end: '2027-05-31', season: 'media',    label: 'Maio' },
+  { start: '2027-06-01', end: '2027-06-30', season: 'media',    label: 'Junho' },
+  { start: '2027-07-01', end: '2027-07-18', season: 'julho1q',  label: '1ª quinz. Julho' },
+  { start: '2027-07-19', end: '2027-07-31', season: 'media',    label: '2ª quinz. Julho' },
+  { start: '2027-08-01', end: '2027-08-31', season: 'media',    label: 'Agosto' },
+  { start: '2027-09-01', end: '2027-09-02', season: 'media',    label: 'Setembro' },
+  { start: '2027-09-03', end: '2027-09-06', season: 'feriado',  label: 'Independência' },
+  { start: '2027-09-07', end: '2027-09-30', season: 'media',    label: 'Setembro' },
+  { start: '2027-10-01', end: '2027-10-07', season: 'media',    label: 'Outubro' },
+  { start: '2027-10-08', end: '2027-10-11', season: 'feriado',  label: 'Dia das Crianças' },
+  { start: '2027-10-12', end: '2027-10-28', season: 'media',    label: 'Outubro' },
+  { start: '2027-10-29', end: '2027-11-01', season: 'feriado',  label: 'Finados' },
+  { start: '2027-11-02', end: '2027-11-11', season: 'media',    label: 'Novembro' },
+  { start: '2027-11-12', end: '2027-11-15', season: 'feriado',  label: 'Proclamação República' },
+  { start: '2027-11-16', end: '2027-11-30', season: 'media',    label: 'Novembro' },
+  { start: '2027-12-01', end: '2027-12-22', season: 'media',    label: 'Dezembro' },
   { start: '2027-12-23', end: '2027-12-27', season: 'especial', label: 'Natal' },
   { start: '2027-12-28', end: '2028-01-03', season: 'especial', label: 'Réveillon' },
 ];
 
 const SEASON_LABELS = {
-  especial: 'Datas Especiais (Natal/Réveillon)',
+  especial:  'Datas Especiais (Natal/Réveillon)',
   superalta: 'Super Alta / Feriados',
-  alta: 'Alta',
-  media: 'Média (demais meses)'
+  julho1q:   '1ª quinz. Julho',
+  feriado:   'Feriados (Alta)',
+  alta:      'Alta',
+  media:     'Média (demais meses)'
 };
 
 const PENSAO_BIGUR = {
@@ -415,29 +417,27 @@ const REPASSE_BATBR = {
 function repasseDiaria(resort, categoriaKey, isoDate){
   const t = temporadaDaData(isoDate);
   if(!t) return null;
+  const s = t.season;
+  const lbl = t.label;
+
   if(resort === 'BIGUR'){
     const tbl = REPASSE_BIGUR;
-    // categorias sem linha própria na tabela de Repasse: usar a categoria mais próxima como aproximação
-    const fallbackKey = { familia_sup_jardim: 'triplo_sup_jardim', duplo_premier_plus: 'duplo_premier', triplo_premier_plus: 'triplo_premier_plus' }[categoriaKey] || categoriaKey;
-    let season;
-    if(t.label==='Réveillon') season = tbl.reveillon;
-    else if(t.label==='Natal') season = tbl.natal;
-    else if(t.season==='superalta') season = tbl.superalta;
-    else if(t.season==='alta') season = tbl.alta;
-    else if(t.season==='media') season = tbl.media;
-    else return null;
-    return season[fallbackKey] ?? null;
+    const fk = { familia_sup_jardim: 'triplo_sup_jardim', duplo_premier_plus: 'duplo_premier' }[categoriaKey] || categoriaKey;
+    if(lbl==='Réveillon')                         return tbl.reveillon[fk];
+    if(lbl==='Natal' || s==='superalta')          return tbl.natal[fk];
+    if(s==='julho1q' || s==='feriado')            return tbl.alta[fk];
+    return tbl.media[fk];
   }
+
   if(resort === 'BATBR'){
     const tbl = REPASSE_BATBR;
-    if(t.label==='Réveillon') return tbl.reveillon[categoriaKey];
-    if(t.label==='Natal') return tbl.natal[categoriaKey];
-    if(t.label==='Carnaval') return tbl.carnaval[categoriaKey];
-    if(t.label==='Páscoa') return tbl.pascoa[categoriaKey];
-    if(t.season==='superalta') return tbl.nsa_independencia[categoriaKey]; // demais feriados super alta (NSA/Independência)
-    if(t.season==='alta') return tbl.alta[categoriaKey];
-    if(t.season==='media') return tbl.media[categoriaKey];
-    return null;
+    if(lbl==='Réveillon')                         return tbl.reveillon[categoriaKey];
+    if(lbl==='Natal')                             return tbl.natal[categoriaKey];
+    if(lbl==='Carnaval')                          return tbl.carnaval[categoriaKey];
+    if(lbl==='Páscoa')                            return tbl.pascoa[categoriaKey];
+    if(s==='superalta')                           return tbl.nsa_independencia[categoriaKey];
+    if(s==='feriado' || s==='julho1q')            return tbl.alta[categoriaKey];
+    return tbl.media[categoriaKey];
   }
   return null;
 }
@@ -465,40 +465,61 @@ function getCategorias(resort, modelo){
 function pontosDiaria(resort, modelo, categoriaKey, isoDate){
   const t = temporadaDaData(isoDate);
   if(!t) return null;
+  const s = t.season;
+  const lbl = t.label;
 
+  // ── BATBR Antigo ──────────────────────────────────────────────────────────
+  // Super Alta: Réveillon, Natal, Carnaval, Páscoa/Corpus Christi
+  // Feriados (âncora Dia do Trabalho): Independência, NSA, Finados, Proclamação, Dia Crianças, Consciência Negra
+  // Alta (âncora Janeiro): 1ª quinz. Janeiro, Julho, Dezembro
+  // Média: demais
   if(resort==='BATBR' && modelo==='antigo'){
-    if(t.label==='Réveillon') return PONTOS_ANTIGO_BATBR_REVEILLON[categoriaKey];
-    if(t.label==='Natal') return PONTOS_ANTIGO_BATBR_NATAL[categoriaKey];
-    if(t.label==='Páscoa' || t.label==='Corpus Christi') return PONTOS_ANTIGO_BATBR_PASCOA_CORPUS[categoriaKey];
-    if(t.label==='1ª quinz. Janeiro') return PONTOS_ANTIGO_BATBR_JANEIRO[categoriaKey];
-    return PONTOS_ANTIGO_BATBR[t.season][categoriaKey];
+    if(lbl==='Réveillon')                                                return PONTOS_ANTIGO_BATBR_REVEILLON[categoriaKey];
+    if(lbl==='Natal')                                                    return PONTOS_ANTIGO_BATBR_NATAL[categoriaKey];
+    if(lbl==='Carnaval')                                                 return PONTOS_ANTIGO_BATBR[s][categoriaKey]; // superalta âncora Carnaval
+    if(lbl==='Páscoa' || lbl==='Corpus Christi')                        return PONTOS_ANTIGO_BATBR_PASCOA_CORPUS[categoriaKey];
+    if(s==='feriado')                                                    return PONTOS_ANTIGO_BATBR.alta[categoriaKey]; // Dia Trabalho âncora
+    if(lbl==='1ª quinz. Janeiro' || s==='julho1q')                      return PONTOS_ANTIGO_BATBR_JANEIRO[categoriaKey]; // Alta âncora Janeiro
+    return PONTOS_ANTIGO_BATBR.media[categoriaKey];
   }
+
+  // ── BATBR Novo ────────────────────────────────────────────────────────────
+  // Super Alta: Réveillon, Natal, Carnaval, Páscoa, NSA, Independência, 1ª quinz. Janeiro, Dezembro 2ª quinz., Julho
+  // Alta (âncora Dia do Trabalho): Dia do Trabalho, Tiradentes, Janeiro 2ª quinz., Consciência Negra, Corpus Christi, Proclamação, Dezembro 1ª quinz.
+  // Média: demais
   if(resort==='BATBR' && modelo==='novo'){
-    if(t.label==='Réveillon') return PONTOS_NOVO_BATBR_REVEILLON[categoriaKey];
-    if(t.label==='Natal') return PONTOS_NOVO_BATBR_NATAL[categoriaKey];
-    if(t.label==='Carnaval') return PONTOS_NOVO_BATBR_CARNAVAL[categoriaKey];
-    if(t.season==='alta') return PONTOS_NOVO_BATBR_TRABALHO[categoriaKey];
-    if(t.season==='media') return PONTOS_NOVO_BATBR_FEVEREIRO[categoriaKey];
-    if(t.season==='superalta') return PONTOS_NOVO_BATBR_CARNAVAL[categoriaKey];
-    return null;
+    if(lbl==='Réveillon')                                                return PONTOS_NOVO_BATBR_REVEILLON[categoriaKey];
+    if(lbl==='Natal')                                                    return PONTOS_NOVO_BATBR_NATAL[categoriaKey];
+    if(s==='superalta' || s==='julho1q' || s==='feriado' && (lbl==='Independência' || lbl.includes('NSA') || lbl.includes('Aparecida')))
+                                                                         return PONTOS_NOVO_BATBR_CARNAVAL[categoriaKey]; // superalta âncora Carnaval
+    if(s==='feriado')                                                    return PONTOS_NOVO_BATBR_TRABALHO[categoriaKey]; // Alta âncora Trabalho
+    return PONTOS_NOVO_BATBR_FEVEREIRO[categoriaKey];
   }
+
+  // ── BIGUR Antigo ──────────────────────────────────────────────────────────
+  // Super Alta: Réveillon, Natal (sem Carnaval/Páscoa que estão vazios = usa âncora Natal)
+  // Alta (âncora Janeiro): Janeiro, Julho, Dezembro
+  // Média: demais (Carnaval/Páscoa/Corpus/Feriados = Média pois células vazias no BIGUR Antigo)
   if(resort==='BIGUR' && modelo==='antigo'){
-    if(t.label==='Réveillon') return PONTOS_ANTIGO_BIGUR_REVEILLON[categoriaKey];
-    if(t.label==='Natal') return PONTOS_ANTIGO_BIGUR_NATAL[categoriaKey];
-    if(t.season==='alta') return PONTOS_ANTIGO_BIGUR_JANEIRO[categoriaKey];
-    if(t.season==='media') return PONTOS_ANTIGO_BIGUR_FEVEREIRO[categoriaKey];
-    if(t.season==='superalta') return PONTOS_ANTIGO_BIGUR_NATAL[categoriaKey];
-    return null;
+    if(lbl==='Réveillon')                          return PONTOS_ANTIGO_BIGUR_REVEILLON[categoriaKey];
+    if(lbl==='Natal')                              return PONTOS_ANTIGO_BIGUR_NATAL[categoriaKey];
+    if(lbl==='1ª quinz. Janeiro' || s==='julho1q') return PONTOS_ANTIGO_BIGUR_JANEIRO[categoriaKey];
+    return PONTOS_ANTIGO_BIGUR_FEVEREIRO[categoriaKey];
   }
+
+  // ── BIGUR Novo ────────────────────────────────────────────────────────────
+  // Super Alta: Réveillon, Natal, Carnaval, Páscoa, Corpus, NSA, Independência, 1ª quinz. Janeiro, Julho, Proclamação
+  // Alta (âncora Dia do Trabalho): Dia do Trabalho, Tiradentes, Janeiro 2ª quinz., Dezembro
+  // Média: demais
   if(resort==='BIGUR' && modelo==='novo'){
-    if(t.label==='Réveillon') return PONTOS_NOVO_BIGUR_REVEILLON[categoriaKey];
-    if(t.label==='Natal') return PONTOS_NOVO_BIGUR_NATAL[categoriaKey];
-    if(t.label==='Carnaval') return PONTOS_NOVO_BIGUR_CARNAVAL[categoriaKey];
-    if(t.season==='alta') return PONTOS_NOVO_BIGUR_TRABALHO[categoriaKey];
-    if(t.season==='media') return PONTOS_NOVO_BIGUR_FEVEREIRO[categoriaKey];
-    if(t.season==='superalta') return PONTOS_NOVO_BIGUR_CARNAVAL[categoriaKey];
-    return null;
+    if(lbl==='Réveillon')                           return PONTOS_NOVO_BIGUR_REVEILLON[categoriaKey];
+    if(lbl==='Natal')                               return PONTOS_NOVO_BIGUR_NATAL[categoriaKey];
+    if(s==='superalta' || s==='julho1q' || s==='feriado' && (lbl==='Independência' || lbl.includes('NSA') || lbl.includes('Aparecida') || lbl==='Proclamação República'))
+                                                    return PONTOS_NOVO_BIGUR_CARNAVAL[categoriaKey];
+    if(s==='feriado')                               return PONTOS_NOVO_BIGUR_TRABALHO[categoriaKey];
+    return PONTOS_NOVO_BIGUR_FEVEREIRO[categoriaKey];
   }
+
   return null;
 }
 
@@ -707,7 +728,15 @@ document.addEventListener('click', (e)=>{
 function atualizarTemporada(){
   if(!checkinEl.value){ temporadaEl.value=''; return; }
   const t = temporadaDaData(checkinEl.value);
-  temporadaEl.value = t ? `${SEASON_LABELS[t.season]} — ${t.label}` : 'fora do calendário cadastrado';
+  if(!t){ temporadaEl.value='fora do calendário cadastrado'; return; }
+  const modelo = modeloSel.value;
+  let label = t.label;
+  let season = t.season;
+  // Julho 1ª quinzena: Alta para contratos Antigos, Super Alta para Novos
+  if(season==='julho1q') season = modelo==='novo' ? 'superalta' : 'alta';
+  // Feriados: Alta para ambos os contratos
+  if(season==='feriado') season = 'alta';
+  temporadaEl.value = `${SEASON_LABELS[season] || season} — ${label}`;
 }
 
 // ===================== UI: crianças / idades inline =====================
