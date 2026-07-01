@@ -526,7 +526,12 @@ function pontosDiaria(resort, modelo, categoriaKey, isoDate){
 function pensaoValorDia(isoDate, tipoPensao){
   const t = temporadaDaData(isoDate);
   if(!t) return null;
-  return PENSAO_BIGUR[t.season][tipoPensao];
+  // mapear season extendidos para as chaves da tabela de pensão
+  // julho1q = Super Alta na pensão (R$449), independente do tipo de contrato
+  // feriado = Alta na pensão (R$349)
+  const seasonMap = { julho1q: 'superalta', feriado: 'alta' };
+  const s = seasonMap[t.season] || t.season;
+  return PENSAO_BIGUR[s]?.[tipoPensao] ?? null;
 }
 
 // ===================== UI: categorias =====================
@@ -572,6 +577,7 @@ function setModelo(valor){
   modeloSel.value = valor;
   modeloDisplayEl.value = valor === 'novo' ? 'Novo' : 'Antigo';
   popularCategorias();
+  atualizarTemporada(); // recalcula display pois Julho muda de Alta ↔ Super Alta por modelo
 }
 
 // ===================== Lookup automático de Contrato (planilha pública) =====================
