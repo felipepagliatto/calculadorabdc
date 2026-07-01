@@ -81,6 +81,22 @@
   .chd-inline{ display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; }
   .chd-age{ width:74px; }
   .hint{ font-size:11px; color:#93998f; margin-top:6px; }
+  .quarto-row{
+    display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end;
+    padding:12px 14px; border:1px solid var(--line); border-radius:8px;
+    background:#fafbf8; margin-bottom:10px; position:relative;
+  }
+  .quarto-row .quarto-num{
+    font-size:11.5px; font-weight:700; color:var(--accent);
+    position:absolute; top:8px; left:14px;
+  }
+  .quarto-row .f{ padding-top:16px; }
+  .quarto-row .f:first-of-type{ padding-top:16px; }
+  .btn-remove{
+    background:none; border:1px solid #e0bcbc; border-radius:6px; color:#b3261e;
+    padding:6px 10px; font-size:12px; cursor:pointer; height:36px; align-self:flex-end;
+  }
+  .btn-remove:hover{ background:#fdf2f2; }
 
   .checkbox-pill{
     display:flex; align-items:center; gap:8px; height:36px; padding:0 12px;
@@ -184,42 +200,9 @@
         <input id="checkout" type="hidden">
         <div id="calendarPanel" class="calendar-pop"></div>
       </div>
-      <div class="f w-xs">
-        <label>Adultos</label>
-        <input id="adultos" type="number" min="1" value="2">
-      </div>
-      <div class="f w-xs">
-        <label>Crianças</label>
-        <select id="criancas">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      </div>
-      <div id="idadesInline" class="chd-inline"></div>
       <div class="f w-md">
         <label>Temporada (auto)</label>
         <input id="temporada" disabled placeholder="—">
-      </div>
-    </div>
-    <div class="hint">0–5 anos: cortesia · 6–11 anos: meia tarifa · 12+ anos: tratado como adulto</div>
-  </div>
-
-  <div class="card">
-    <p class="card-title">Categoria &amp; Tarifação</p>
-    <div class="row">
-      <div class="f w-xl">
-        <label>Categoria do quarto</label>
-        <select id="categoria"></select>
-      </div>
-      <div class="f w-md">
-        <label>Tipo de pensão</label>
-        <select id="pensao">
-          <option value="cafe">Café da manhã</option>
-          <option value="meia">Meia pensão</option>
-          <option value="completa">Pensão completa</option>
-        </select>
       </div>
       <div class="f">
         <label>&nbsp;</label>
@@ -228,6 +211,14 @@
           <span>Cobrar 20% sex/sáb</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Quartos &amp; Tarifação</p>
+    <div id="quartosContainer"></div>
+    <div style="margin-top:12px;">
+      <button type="button" id="btnAddQuarto" class="btn-ghost" style="font-size:13px;padding:7px 14px;">+ Adicionar quarto</button>
     </div>
     <div id="erroMsg" class="error-msg"></div>
   </div>
@@ -529,76 +520,125 @@ function pensaoValorDia(isoDate, tipoPensao){
   return row[tipoPensao] ?? null;
 }
 
-// ===================== UI: categorias =====================
+// ===================== UI: resort/modelo =====================
 const resortSel = document.getElementById('resort');
 const modeloSel = document.getElementById('modelo');
-const categoriaSel = document.getElementById('categoria');
 
-function popularCategorias(){
+function getCatsDisponiveis(adultos, criancas){
   const cats = getCategorias(resortSel.value, modeloSel.value);
-  const numAdultos = parseInt(document.getElementById('adultos').value, 10) || 0;
-  const numCriancas = parseInt(document.getElementById('criancas').value, 10) || 0;
-  const temCHD = numCriancas > 0;
-
-  categoriaSel.innerHTML = '';
-  if(!cats || cats.length===0){
-    const opt = document.createElement('option');
-    opt.textContent = '— nenhuma categoria cadastrada —';
-    opt.value = '';
-    categoriaSel.appendChild(opt);
-    return;
-  }
-
-  // Filtrar: categoria deve suportar numAdultos E aceitar CHD se houver crianças
-  const disponiveis = cats.filter(c => {
+  const temCHD = criancas > 0;
+  const disp = cats.filter(c=>{
     if(temCHD && !c.aceitaCHD) return false;
-    if(numAdultos > 0 && !c.ocupacoes.some(o => o >= numAdultos)) return false;
+    if(adultos > 0 && !c.ocupacoes.some(o=>o>=adultos)) return false;
     return true;
   });
+  return disp.length > 0 ? disp : cats;
+}
 
-  if(disponiveis.length === 0){
-    cats.forEach(c=>{
-      const opt = document.createElement('option');
-      opt.value = c.key;
-      opt.textContent = c.label;
-      categoriaSel.appendChild(opt);
-    });
-    return;
-  }
-
-  disponiveis.forEach(c=>{
-    const opt = document.createElement('option');
-    opt.value = c.key;
-    opt.textContent = c.label;
-    categoriaSel.appendChild(opt);
+function buildPensaoSelect(){
+  const sel = document.createElement('select');
+  sel.className = 'pensao-sel';
+  [['cafe','Café da manhã'],['meia','Meia pensão'],['completa','Pensão completa']].forEach(([v,l])=>{
+    const opt = document.createElement('option'); opt.value=v; opt.textContent=l; sel.appendChild(opt);
   });
+  if(resortSel.value==='BATBR'){ sel.value='completa'; sel.disabled=true; }
+  return sel;
 }
-resortSel.addEventListener('change', ()=>{ popularCategorias(); ajustarPensao(); });
 
-// Atualizar categorias quando adultos ou crianças mudam
-document.getElementById('adultos').addEventListener('input', popularCategorias);
-document.getElementById('criancas').addEventListener('change', popularCategorias);
-popularCategorias();
+let quartoCount = 0;
 
-function ajustarPensao(){
-  const pensaoSel = document.getElementById('pensao');
-  if(resortSel.value === 'BATBR'){
-    pensaoSel.value = 'completa';
-    pensaoSel.disabled = true;
-    pensaoSel.title = 'Bourbon Resort Atibaia opera apenas com Pensão Completa';
-  } else {
-    pensaoSel.disabled = false;
-    pensaoSel.title = '';
+function adicionarQuarto(){
+  quartoCount++;
+  const idx = quartoCount;
+  const row = document.createElement('div');
+  row.className = 'quarto-row';
+  row.dataset.idx = idx;
+
+  const num = document.createElement('span');
+  num.className = 'quarto-num';
+  num.textContent = `Quarto ${idx}`;
+  row.appendChild(num);
+
+  // Adultos
+  const fA = document.createElement('div'); fA.className='f w-xs';
+  const lA = document.createElement('label'); lA.textContent='Adultos';
+  const inA = document.createElement('input'); inA.type='number'; inA.min=1; inA.value=2; inA.className='adultos-q';
+  fA.appendChild(lA); fA.appendChild(inA); row.appendChild(fA);
+
+  // Crianças
+  const fC = document.createElement('div'); fC.className='f w-xs';
+  const lC = document.createElement('label'); lC.textContent='Crianças';
+  const selC = document.createElement('select'); selC.className='criancas-q';
+  [0,1,2,3].forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; selC.appendChild(o); });
+  fC.appendChild(lC); fC.appendChild(selC); row.appendChild(fC);
+
+  // Idades
+  const idadesWrap = document.createElement('div'); idadesWrap.className='chd-inline idades-wrap';
+  row.appendChild(idadesWrap);
+
+  // Categoria
+  const fCat = document.createElement('div'); fCat.className='f w-lg';
+  const lCat = document.createElement('label'); lCat.textContent='Categoria';
+  const selCat = document.createElement('select'); selCat.className='cat-sel';
+  getCatsDisponiveis(2,0).forEach(c=>{ const o=document.createElement('option'); o.value=c.key; o.textContent=c.label; selCat.appendChild(o); });
+  fCat.appendChild(lCat); fCat.appendChild(selCat); row.appendChild(fCat);
+
+  // Pensão
+  const fP = document.createElement('div'); fP.className='f w-md';
+  const lP = document.createElement('label'); lP.textContent='Pensão';
+  const selP = buildPensaoSelect();
+  fP.appendChild(lP); fP.appendChild(selP); row.appendChild(fP);
+
+  // Remover
+  const btnRem = document.createElement('button'); btnRem.type='button'; btnRem.className='btn-remove'; btnRem.textContent='✕';
+  btnRem.onclick=()=>{ row.remove(); if(!document.querySelector('.quarto-row')) adicionarQuarto(); };
+  row.appendChild(btnRem);
+
+  function atualizarCatQuarto(){
+    const a=parseInt(inA.value,10)||0, c=parseInt(selC.value,10)||0;
+    const prev=selCat.value;
+    selCat.innerHTML='';
+    getCatsDisponiveis(a,c).forEach(cat=>{ const o=document.createElement('option'); o.value=cat.key; o.textContent=cat.label; selCat.appendChild(o); });
+    if([...selCat.options].some(o=>o.value===prev)) selCat.value=prev;
+    // idades
+    idadesWrap.innerHTML='';
+    for(let i=0;i<c;i++){
+      const f=document.createElement('div'); f.className='f chd-age';
+      const lbl=document.createElement('label'); lbl.textContent=`Idade ${i+1}`;
+      const sel=document.createElement('select');
+      for(let idade=0;idade<=11;idade++){const opt=document.createElement('option');opt.value=idade;opt.textContent=idade;sel.appendChild(opt);}
+      f.appendChild(lbl); f.appendChild(sel); idadesWrap.appendChild(f);
+    }
   }
+  inA.addEventListener('input', atualizarCatQuarto);
+  selC.addEventListener('change', atualizarCatQuarto);
+  document.getElementById('quartosContainer').appendChild(row);
 }
-ajustarPensao();
+
+resortSel.addEventListener('change', ()=>{
+  document.querySelectorAll('.pensao-sel').forEach(sel=>{
+    if(resortSel.value==='BATBR'){sel.value='completa';sel.disabled=true;}
+    else{sel.disabled=false;}
+  });
+  document.querySelectorAll('.quarto-row').forEach(row=>{
+    const a=parseInt(row.querySelector('.adultos-q').value)||0;
+    const c=parseInt(row.querySelector('.criancas-q').value)||0;
+    const selCat=row.querySelector('.cat-sel'); const prev=selCat.value;
+    selCat.innerHTML='';
+    getCatsDisponiveis(a,c).forEach(cat=>{const o=document.createElement('option');o.value=cat.key;o.textContent=cat.label;selCat.appendChild(o);});
+    if([...selCat.options].some(o=>o.value===prev)) selCat.value=prev;
+  });
+  atualizarTemporada();
+});
+
+document.getElementById('btnAddQuarto').addEventListener('click', adicionarQuarto);
+adicionarQuarto();
 
 const modeloDisplayEl = document.getElementById('modeloDisplay');
 function setModelo(valor){
-  modeloSel.value = valor;
-  modeloDisplayEl.value = valor === 'novo' ? 'Novo' : 'Antigo';
-  popularCategorias();
-  atualizarTemporada(); // recalcula display pois Julho muda de Alta ↔ Super Alta por modelo
+  modeloSel.value=valor;
+  modeloDisplayEl.value=valor==='novo'?'Novo':'Antigo';
+  atualizarTemporada();
 }
 
 // ===================== Lookup automático de Contrato (planilha pública) =====================
@@ -607,400 +647,254 @@ const SHEET_NAME_CONTRATOS = 'Contratos';
 const contratoEl = document.getElementById('contrato');
 const valorPontoEl = document.getElementById('valorPonto');
 const contratoStatusEl = document.getElementById('contratoStatus');
-
-let contratosCache = null; // Map: contrato -> { tipo, valorPonto }
-let contratosCacheLoading = null;
+let contratosCache=null, contratosCacheLoading=null;
 
 function csvParseLine(line){
-  // parser simples de CSV (suporta aspas)
-  const out = [];
-  let cur = '', inQuotes = false;
+  const out=[]; let cur='', inQ=false;
   for(let i=0;i<line.length;i++){
-    const ch = line[i];
-    if(inQuotes){
-      if(ch === '"'){
-        if(line[i+1] === '"'){ cur += '"'; i++; } else { inQuotes = false; }
-      } else cur += ch;
-    } else {
-      if(ch === '"') inQuotes = true;
-      else if(ch === ','){ out.push(cur); cur=''; }
-      else cur += ch;
-    }
+    const ch=line[i];
+    if(inQ){if(ch==='"'){if(line[i+1]==='"'){cur+='"';i++;}else inQ=false;}else cur+=ch;}
+    else{if(ch==='"')inQ=true;else if(ch===','){out.push(cur);cur='';}else cur+=ch;}
   }
-  out.push(cur);
-  return out;
+  out.push(cur); return out;
 }
 
 async function carregarContratos(){
   if(contratosCache) return contratosCache;
   if(contratosCacheLoading) return contratosCacheLoading;
-
-  contratosCacheLoading = (async ()=>{
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME_CONTRATOS)}`;
-    const resp = await fetch(url);
-    if(!resp.ok) throw new Error('Não foi possível acessar a planilha de contratos (verifique se o link público está ativo).');
-    const text = await resp.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim().length>0);
-    const map = new Map();
-    // Esperado: Contrato, Produto, Tipo do Contrato, Valor do Ponto (cabeçalho pode variar de posição)
-    lines.forEach(line=>{
-      const cols = csvParseLine(line).map(c=>c.trim());
-      if(cols.length < 4) return;
-      const [contrato, produto, tipo, valorPontoStr] = cols;
-      if(!contrato || contrato.toLowerCase()==='contrato') return; // pula cabeçalho
-      const valorPonto = parseFloat(valorPontoStr.replace(',', '.'));
-      if(isNaN(valorPonto)) return;
-      const tipoNorm = (tipo||'').toLowerCase().includes('novo') ? 'novo' : 'antigo';
-      map.set(contrato.trim(), { tipo: tipoNorm, valorPonto });
+  contratosCacheLoading=(async()=>{
+    const resp=await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME_CONTRATOS)}`);
+    if(!resp.ok) throw new Error('Não foi possível acessar a planilha de contratos.');
+    const text=await resp.text();
+    const map=new Map();
+    text.split('\n').filter(l=>l.trim()).forEach(line=>{
+      const cols=csvParseLine(line).map(c=>c.trim());
+      if(cols.length<4) return;
+      const [contrato,,tipo,vpStr]=cols;
+      if(!contrato||contrato.toLowerCase()==='contrato') return;
+      const vp=parseFloat(vpStr.replace(',','.'));
+      if(isNaN(vp)) return;
+      map.set(contrato.trim(),{tipo:(tipo||'').toLowerCase().includes('novo')?'novo':'antigo',valorPonto:vp});
     });
-    contratosCache = map;
-    return map;
+    contratosCache=map; return map;
   })();
-
   return contratosCacheLoading;
 }
 
-function setContratoStatus(msg, kind){
-  contratoStatusEl.textContent = msg;
-  contratoStatusEl.style.color = kind==='error' ? 'var(--warn)' : kind==='ok' ? 'var(--accent-deep)' : '#93998f';
+function setContratoStatus(msg,kind){
+  contratoStatusEl.textContent=msg;
+  contratoStatusEl.style.color=kind==='error'?'var(--warn)':kind==='ok'?'var(--accent-deep)':'#93998f';
 }
 
-let buscaContratoTimer = null;
-contratoEl.addEventListener('input', ()=>{
-  clearTimeout(buscaContratoTimer);
-  const val = contratoEl.value.trim();
-  if(!val){ setContratoStatus('\u00a0', null); return; }
-  setContratoStatus('Buscando contrato…', null);
-  buscaContratoTimer = setTimeout(async ()=>{
+let buscaTimer=null;
+contratoEl.addEventListener('input',()=>{
+  clearTimeout(buscaTimer);
+  const val=contratoEl.value.trim();
+  if(!val){setContratoStatus('\u00a0',null);return;}
+  setContratoStatus('Buscando contrato…',null);
+  buscaTimer=setTimeout(async()=>{
     try{
-      const map = await carregarContratos();
-      const found = map.get(val);
-      if(found){
-        setModelo(found.tipo);
-        valorPontoEl.value = found.valorPonto;
-        setContratoStatus(`Encontrado · contrato ${found.tipo === 'novo' ? 'Novo' : 'Antigo'} · ponto ${found.valorPonto}`, 'ok');
-      } else {
-        setContratoStatus('Contrato não encontrado na planilha — preencha manualmente.', 'error');
-      }
-    }catch(e){
-      setContratoStatus(e.message, 'error');
-    }
-  }, 500);
+      const map=await carregarContratos();
+      const found=map.get(val);
+      if(found){setModelo(found.tipo);valorPontoEl.value=found.valorPonto;setContratoStatus(`Encontrado · contrato ${found.tipo==='novo'?'Novo':'Antigo'} · ponto ${found.valorPonto}`,'ok');}
+      else setContratoStatus('Contrato não encontrado — preencha manualmente.','error');
+    }catch(e){setContratoStatus(e.message,'error');}
+  },500);
 });
 
 // ===================== UI: período =====================
-const periodoEl = document.getElementById('periodo');
-const checkinEl = document.getElementById('checkin');
-const checkoutEl = document.getElementById('checkout');
-const temporadaEl = document.getElementById('temporada');
-const calendarPanel = document.getElementById('calendarPanel');
-
-let calMonth = new Date();
-let selStart = null, selEnd = null;
+const periodoEl=document.getElementById('periodo');
+const checkinEl=document.getElementById('checkin');
+const checkoutEl=document.getElementById('checkout');
+const temporadaEl=document.getElementById('temporada');
+const calendarPanel=document.getElementById('calendarPanel');
+let calMonth=new Date(), selStart=null, selEnd=null;
 
 function renderCalendar(){
-  const y = calMonth.getFullYear(), m = calMonth.getMonth();
-  const first = new Date(y, m, 1);
-  const startDow = first.getDay();
-  const daysInMonth = new Date(y, m+1, 0).getDate();
-  const monthName = first.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
-
-  let html = `<div class="cal-head">
-    <button type="button" class="cal-nav" id="calPrev">‹</button>
-    <strong>${monthName}</strong>
-    <button type="button" class="cal-nav" id="calNext">›</button>
-  </div>
-  <div class="cal-grid">
-    <span class="cal-dow">D</span><span class="cal-dow">S</span><span class="cal-dow">T</span><span class="cal-dow">Q</span><span class="cal-dow">Q</span><span class="cal-dow">S</span><span class="cal-dow">S</span>`;
-
-  for(let i=0;i<startDow;i++) html += `<span></span>`;
-  for(let d=1; d<=daysInMonth; d++){
-    const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    let style = '';
-    if(selStart && iso===selStart){ style='background:var(--accent);color:#fff;'; }
-    else if(selEnd && iso===selEnd){ style='background:var(--accent);color:#fff;'; }
-    else if(selStart && selEnd && iso>selStart && iso<selEnd){ style='background:var(--accent-soft);'; }
-    html += `<button type="button" class="cal-day" data-iso="${iso}" style="${style}">${d}</button>`;
+  const y=calMonth.getFullYear(),m=calMonth.getMonth();
+  const first=new Date(y,m,1),startDow=first.getDay(),dim=new Date(y,m+1,0).getDate();
+  const mn=first.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  let html=`<div class="cal-head"><button type="button" class="cal-nav" id="calPrev">‹</button><strong>${mn}</strong><button type="button" class="cal-nav" id="calNext">›</button></div><div class="cal-grid"><span class="cal-dow">D</span><span class="cal-dow">S</span><span class="cal-dow">T</span><span class="cal-dow">Q</span><span class="cal-dow">Q</span><span class="cal-dow">S</span><span class="cal-dow">S</span>`;
+  for(let i=0;i<startDow;i++) html+=`<span></span>`;
+  for(let d=1;d<=dim;d++){
+    const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let bg='transparent',color='var(--ink)';
+    if(selStart&&iso===selStart){bg='var(--accent)';color='#fff';}
+    else if(selEnd&&iso===selEnd){bg='var(--accent)';color='#fff';}
+    else if(selStart&&selEnd&&iso>selStart&&iso<selEnd){bg='var(--accent-soft)';}
+    html+=`<button type="button" class="cal-day" data-iso="${iso}" style="background:${bg};color:${color};">${d}</button>`;
   }
-  html += `</div>`;
-  calendarPanel.innerHTML = html;
-
-  calendarPanel.querySelector('#calPrev').onclick = ()=>{ calMonth = new Date(y, m-1, 1); renderCalendar(); };
-  calendarPanel.querySelector('#calNext').onclick = ()=>{ calMonth = new Date(y, m+1, 1); renderCalendar(); };
+  calendarPanel.innerHTML=html+'</div>';
+  calendarPanel.querySelector('#calPrev').onclick=()=>{calMonth=new Date(y,m-1,1);renderCalendar();};
+  calendarPanel.querySelector('#calNext').onclick=()=>{calMonth=new Date(y,m+1,1);renderCalendar();};
   calendarPanel.querySelectorAll('.cal-day').forEach(btn=>{
-    btn.onclick = ()=>{
-      const iso = btn.dataset.iso;
-      if(!selStart || (selStart && selEnd)){
-        selStart = iso; selEnd = null;
-      } else if(iso < selStart){
-        selStart = iso;
-      } else {
-        selEnd = iso;
-      }
-      atualizarPeriodoCampo();
-      renderCalendar();
-      if(selStart && selEnd){
-        setTimeout(()=>{ calendarPanel.style.display='none'; }, 150);
-      }
+    btn.onclick=()=>{
+      const iso=btn.dataset.iso;
+      if(!selStart||(selStart&&selEnd)){selStart=iso;selEnd=null;}
+      else if(iso<selStart){selStart=iso;}
+      else{selEnd=iso;}
+      atualizarPeriodoCampo();renderCalendar();
+      if(selStart&&selEnd)setTimeout(()=>{calendarPanel.style.display='none';},150);
     };
   });
 }
 
+function formatDateBR(iso){if(!iso)return'';const[y,m,d]=iso.split('-');return`${d}/${m}/${y}`;}
+
 function atualizarPeriodoCampo(){
-  checkinEl.value = selStart || '';
-  checkoutEl.value = selEnd || '';
-  periodoEl.value = selStart ? `${formatDateBR(selStart)}${selEnd ? ' → '+formatDateBR(selEnd) : ' → ...'}` : '';
+  checkinEl.value=selStart||'';checkoutEl.value=selEnd||'';
+  periodoEl.value=selStart?`${formatDateBR(selStart)}${selEnd?' → '+formatDateBR(selEnd):' → ...'}`:'' ;
   atualizarTemporada();
 }
 
-periodoEl.addEventListener('click', (e)=>{
-  e.stopPropagation();
-  calendarPanel.style.display = calendarPanel.style.display==='none' ? 'block' : 'none';
-  renderCalendar();
-});
-calendarPanel.addEventListener('click', (e)=>{
-  e.stopPropagation();
-});
-document.addEventListener('click', (e)=>{
-  if(!periodoEl.parentElement.contains(e.target)) calendarPanel.style.display = 'none';
-});
+periodoEl.addEventListener('click',e=>{e.stopPropagation();calendarPanel.style.display=calendarPanel.style.display==='none'?'block':'none';renderCalendar();});
+calendarPanel.addEventListener('click',e=>e.stopPropagation());
+document.addEventListener('click',e=>{if(!periodoEl.parentElement.contains(e.target))calendarPanel.style.display='none';});
 
 function atualizarTemporada(){
-  if(!checkinEl.value){ temporadaEl.value=''; return; }
-  const t = temporadaDaData(checkinEl.value);
-  if(!t){ temporadaEl.value='fora do calendário cadastrado'; return; }
-  const modelo = modeloSel.value;
-  let label = t.label;
-  let season = t.season;
-  // Julho 1ª quinzena: Alta para contratos Antigos, Super Alta para Novos
-  if(season==='julho1q') season = modelo==='novo' ? 'superalta' : 'alta';
-  // Feriados: Alta para ambos os contratos
-  if(season==='feriado') season = 'alta';
-  temporadaEl.value = `${SEASON_LABELS[season] || season} — ${label}`;
-}
-
-// ===================== UI: crianças / idades inline =====================
-const criancasEl = document.getElementById('criancas');
-const idadesInline = document.getElementById('idadesInline');
-
-function popularIdades(){
-  const n = parseInt(criancasEl.value,10) || 0;
-  const valoresAtuais = Array.from(idadesInline.querySelectorAll('select')).map(s=>s.value);
-  idadesInline.innerHTML = '';
-  for(let i=0;i<n;i++){
-    const f = document.createElement('div');
-    f.className = 'f chd-age';
-    const label = document.createElement('label');
-    label.textContent = `Idade ${i+1}`;
-    const sel = document.createElement('select');
-    sel.dataset.idx = i;
-    for(let idade=0; idade<=11; idade++){
-      const opt = document.createElement('option');
-      opt.value = idade;
-      opt.textContent = idade;
-      sel.appendChild(opt);
-    }
-    if(valoresAtuais[i] !== undefined) sel.value = valoresAtuais[i];
-    f.appendChild(label);
-    f.appendChild(sel);
-    idadesInline.appendChild(f);
-  }
-}
-criancasEl.addEventListener('change', popularIdades);
-popularIdades();
-
-function getIdadesSelecionadas(){
-  return Array.from(idadesInline.querySelectorAll('select')).map(s=>parseInt(s.value,10));
+  if(!checkinEl.value){temporadaEl.value='';return;}
+  const t=temporadaDaData(checkinEl.value);
+  if(!t){temporadaEl.value='fora do calendário cadastrado';return;}
+  let season=t.season;
+  if(season==='julho1q')season=modeloSel.value==='novo'?'superalta':'alta';
+  if(season==='feriado')season='alta';
+  temporadaEl.value=`${SEASON_LABELS[season]||season} — ${t.label}`;
 }
 
 // ===================== Cálculo principal =====================
-const resultadoEl = document.getElementById('resultado');
-const erroEl = document.getElementById('erroMsg');
+const resultadoEl=document.getElementById('resultado');
+const erroEl=document.getElementById('erroMsg');
+function formatBRL(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
+function formatPts(v){return v.toLocaleString('pt-BR',{maximumFractionDigits:2});}
+function showError(msg){erroEl.textContent=msg;erroEl.classList.toggle('show',!!msg);}
 
-function formatBRL(v){ return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
-function formatPts(v){ return v.toLocaleString('pt-BR', {maximumFractionDigits:2}); }
+function calcularQuarto(resort,modelo,valorPonto,noites,dIn,adultos,idades,categoriaKey,pensaoEfetiva,aplicarMulta){
+  const cats=getCategorias(resort,modelo);
+  const catObj=cats.find(c=>c.key===categoriaKey);
+  if(!catObj) throw new Error(`Categoria inválida: ${categoriaKey}`);
+  const ocupEf=catObj.ocupacoes.filter(o=>o>=adultos).sort((a,b)=>a-b)[0];
+  if(!ocupEf) throw new Error(`"${catObj.label}" não suporta ${adultos} adultos.`);
 
-function showError(msg){
-  erroEl.textContent = msg;
-  erroEl.classList.toggle('show', !!msg);
+  let hospPts=0; let cursor=dIn,di=0;
+  while(di<noites){
+    const iso=toISO(cursor);
+    const pts=pontosDiaria(resort,modelo,categoriaKey,ocupEf,iso);
+    if(pts==null) throw new Error(`Sem tabela de pontos para ${formatDateBR(iso)}.`);
+    let vd=pts/7;
+    const dow=dayOfWeek(cursor),fri=(dow===5||dow===6);
+    let multa=false;
+    if(aplicarMulta&&noites!==7&&fri){vd*=1.20;multa=true;}
+    hospPts+=vd; cursor=addDays(cursor,1);di++;
+  }
+
+  let alimReais=0; cursor=dIn;di=0;
+  while(di<noites){
+    const iso=toISO(cursor);
+    const vp=pensaoValorDia(iso,pensaoEfetiva);
+    if(vp==null) throw new Error(`Sem tabela de pensão para ${formatDateBR(iso)}.`);
+    let td=vp*adultos;
+    idades.forEach(idade=>{if(idade<=CHD_RULE.freeMax)td+=0;else if(idade<=CHD_RULE.halfMax)td+=vp*0.5;else td+=vp;});
+    alimReais+=td; cursor=addDays(cursor,1);di++;
+  }
+
+  let taxaDia=0;
+  if(!(modelo==='antigo'&&resort==='BATBR'))taxaDia=adultos>=3?TAXA_UTILIZACAO.adultos3:TAXA_UTILIZACAO.adultos2;
+  const taxaTotal=taxaDia*noites;
+
+  let repTotal=0,repFaltante=false; cursor=dIn;di=0;
+  while(di<noites){
+    const iso=toISO(cursor);
+    const rep=repasseDiaria(resort,categoriaKey,iso);
+    if(rep==null)repFaltante=true;
+    else{let vd=rep;const dow=dayOfWeek(cursor);if(aplicarMulta&&noites!==7&&(dow===5||dow===6))vd*=1.20;repTotal+=vd;}
+    cursor=addDays(cursor,1);di++;
+  }
+  return{catObj,ocupEf,hospPts,alimReais,taxaDia,taxaTotal,repTotal,repFaltante};
 }
 
-document.getElementById('btnCalcular').addEventListener('click', ()=>{
+document.getElementById('btnCalcular').addEventListener('click',()=>{
   showError('');
   try{
-    const contrato = document.getElementById('contrato').value.trim();
-    const resort = resortSel.value;
-    const modelo = modeloSel.value;
-    const valorPonto = parseFloat(document.getElementById('valorPonto').value);
-    const checkin = checkinEl.value;
-    const checkout = checkoutEl.value;
-    const adultos = parseInt(document.getElementById('adultos').value, 10);
-    const numCriancas = parseInt(criancasEl.value, 10) || 0;
-    const idades = getIdadesSelecionadas();
-    const categoriaKey = categoriaSel.value;
-    const tipoPensao = document.getElementById('pensao').value;
-    const aplicarMulta = document.getElementById('multaSexSab').checked;
-
+    const contrato=document.getElementById('contrato').value.trim();
+    const resort=resortSel.value,modelo=modeloSel.value;
+    const valorPonto=parseFloat(document.getElementById('valorPonto').value);
+    const checkin=checkinEl.value,checkout=checkoutEl.value;
+    const aplicarMulta=document.getElementById('multaSexSab').checked;
     if(!contrato) throw new Error('Informe o número do contrato.');
-    if(!valorPonto || valorPonto<=0) throw new Error('Informe o valor do ponto (R$) deste contrato.');
-    if(!checkin || !checkout) throw new Error('Selecione o período (check-in e check-out).');
-    const dIn = parseISO(checkin), dOut = parseISO(checkout);
-    const noites = Math.round((dOut - dIn) / 86400000);
-    if(noites <= 0) throw new Error('Check-out deve ser depois do check-in.');
-    if(!adultos || adultos < 1) throw new Error('Informe a quantidade de adultos.');
-    if(!categoriaKey) throw new Error('Selecione uma categoria de quarto válida para este resort/modelo.');
+    if(!valorPonto||valorPonto<=0) throw new Error('Informe o valor do ponto (R$).');
+    if(!checkin||!checkout) throw new Error('Selecione o período.');
+    const dIn=parseISO(checkin),dOut=parseISO(checkout);
+    const noites=Math.round((dOut-dIn)/86400000);
+    if(noites<=0) throw new Error('Check-out deve ser depois do check-in.');
+    const rows=document.querySelectorAll('.quarto-row');
+    if(!rows.length) throw new Error('Adicione pelo menos um quarto.');
 
-    const cats = getCategorias(resort, modelo);
-    const catObj = cats.find(c=>c.key===categoriaKey);
-    if(!catObj) throw new Error('Categoria inválida para este resort/modelo.');
-    if(numCriancas > 0 && !catObj.aceitaCHD) throw new Error(`A categoria "${catObj.label}" não aceita crianças. Escolha outra categoria.`);
+    const hotelNome=resort==='BATBR'?'Bourbon Resort Atibaia':'Bourbon Thermas Eco Resort Cataratas do Iguaçu';
+    const t0=temporadaDaData(checkin);
+    let totHospPts=0,totAlimReais=0,totTaxaReais=0,totRepReais=0,repAlgumFaltante=false;
+    let quartoLinhas='';
 
-    // Determinar ocupação efetiva: menor ocupação disponível >= adultos
-    const ocupacaoEfetiva = catObj.ocupacoes.filter(o => o >= adultos).sort((a,b)=>a-b)[0];
-    if(!ocupacaoEfetiva) throw new Error(`A categoria "${catObj.label}" não suporta ${adultos} adultos.`);
+    rows.forEach((row,ri)=>{
+      const adultos=parseInt(row.querySelector('.adultos-q').value,10)||1;
+      const numCriancas=parseInt(row.querySelector('.criancas-q').value,10)||0;
+      const idades=Array.from(row.querySelectorAll('.idades-wrap select')).map(s=>parseInt(s.value,10));
+      const catKey=row.querySelector('.cat-sel').value;
+      const pensaoSel=row.querySelector('.pensao-sel');
+      const pensaoEf=resort==='BATBR'?'completa':pensaoSel.value;
+      const r=calcularQuarto(resort,modelo,valorPonto,noites,dIn,adultos,idades,catKey,pensaoEf,aplicarMulta);
+      totHospPts+=r.hospPts; totAlimReais+=r.alimReais; totTaxaReais+=r.taxaTotal; totRepReais+=r.repTotal;
+      if(r.repFaltante)repAlgumFaltante=true;
+      const hospReais=r.hospPts*valorPonto,alimPts=r.alimReais/valorPonto,taxaPts=valorPonto>0?r.taxaTotal/valorPonto:0;
+      const ocupStr=`${adultos} adulto(s)`+(numCriancas>0?` + ${numCriancas} criança(s) (${idades.join(', ')} anos)`:'');
+      quartoLinhas+=`\nQuarto ${ri+1}: ${r.catObj.label} · ${ocupStr} · Pensão: ${pensaoEf}\n`;
+      quartoLinhas+=`  Hospedagem: ${formatPts(r.hospPts)} pts (${formatBRL(hospReais)})\n`;
+      quartoLinhas+=`  Alimentação: ${formatBRL(r.alimReais)} (${formatPts(alimPts)} pts)\n`;
+      quartoLinhas+=`  Taxa: ${r.taxaDia===0?'Isento':formatBRL(r.taxaTotal)+' ('+formatPts(taxaPts)+' pts)'}\n`;
+    });
 
-    let pensaoEfetiva = tipoPensao;
-    if(resort==='BATBR' && tipoPensao !== 'completa'){
-      pensaoEfetiva = 'completa';
-    }
+    const totHospReais=totHospPts*valorPonto,totAlimPts=totAlimReais/valorPonto;
+    const totTaxaPts=valorPonto>0?totTaxaReais/valorPonto:0;
+    const totResPts=totHospPts+totAlimPts+totTaxaPts;
+    const totFaturar=totAlimReais+totRepReais;
 
-    // ----- Hospedagem (em pontos) -----
-    let hospedagemPontos = 0;
-    let detalheDiarias = [];
-    let cursor = dIn;
-    let diaIndex = 0;
-    while(diaIndex < noites){
-      const iso = toISO(cursor);
-      const pts = pontosDiaria(resort, modelo, categoriaKey, ocupacaoEfetiva, iso);
-      if(pts == null) throw new Error(`Não há tabela de pontos cadastrada para a data ${formatDateBR(iso)}.`);
-      let valorDia = pts / 7;
-      const dow = dayOfWeek(cursor);
-      const isFridaySat = (dow === 5 || dow === 6);
-      let multaAplicada = false;
-      if(aplicarMulta && noites !== 7 && isFridaySat){
-        valorDia = valorDia * 1.20;
-        multaAplicada = true;
-      }
-      hospedagemPontos += valorDia;
-      detalheDiarias.push({iso, valorDia, multaAplicada});
-      cursor = addDays(cursor, 1);
-      diaIndex++;
-    }
+    let out=`Cotação:\nContrato: ${contrato}\nPeríodo: ${formatDateBR(checkin)} a ${formatDateBR(checkout)} (${noites} noite${noites>1?'s':''})\nHotel: ${hotelNome}\n`;
+    out+=`Temporada: ${t0?`${SEASON_LABELS[t0.season]||t0.season} — ${t0.label}`:'—'}\n`;
+    out+=quartoLinhas;
+    out+=`\nHospedagem total: ${formatPts(totHospPts)} pts (${formatBRL(totHospReais)})\n`;
+    out+=`Alimentação total: ${formatBRL(totAlimReais)} (${formatPts(totAlimPts)} pts)\n`;
+    out+=`Taxa de utilização total: ${totTaxaReais===0?'Isento':formatBRL(totTaxaReais)+' ('+formatPts(totTaxaPts)+' pts)'}\n`;
+    out+=`Total da reserva: ${formatPts(totResPts)} pts\nPontos disponíveis para utilização: \n`;
+    out+=`\nInformações para faturamento:\nNúmero do Contrato: ${contrato}\nID: ${contrato}\n`;
+    out+=`Valor Pago Cliente BDC: ${formatBRL(totHospReais)}\nValor Pago Cliente BDC em pontos (diárias): ${formatPts(totHospPts)} pts\n`;
+    out+=`Taxa: ${totTaxaReais===0?'Isento':formatBRL(totTaxaReais)}\nTaxa em Pontos: ${totTaxaReais===0?'—':formatPts(totTaxaPts)+' pts'}\n`;
+    out+=`Alimentação: ${formatBRL(totAlimReais)}\nAlimentação em Pontos: ${formatPts(totAlimPts)} pts\n`;
+    out+=`Valor do Repasse Diária: ${repAlgumFaltante?'— (sem tabela para alguma data)':formatBRL(totRepReais)}\n`;
+    out+=`Total a Faturar: ${formatBRL(totFaturar)}\n`;
 
-    // ----- Alimentação / Pensão -----
-    let alimentacaoReais = 0;
-    cursor = dIn; diaIndex = 0;
-    while(diaIndex < noites){
-      const iso = toISO(cursor);
-      const valorPessoaDia = pensaoValorDia(iso, pensaoEfetiva);
-      if(valorPessoaDia == null) throw new Error(`Não há tabela de pensão cadastrada para a data ${formatDateBR(iso)}.`);
-      let totalDia = valorPessoaDia * adultos;
-      idades.forEach(idade=>{
-        if(idade <= CHD_RULE.freeMax) totalDia += 0;
-        else if(idade <= CHD_RULE.halfMax) totalDia += valorPessoaDia * 0.5;
-        else totalDia += valorPessoaDia;
-      });
-      alimentacaoReais += totalDia;
-      cursor = addDays(cursor, 1);
-      diaIndex++;
-    }
-    const alimentacaoPontos = alimentacaoReais / valorPonto;
-
-    // ----- Taxa de Utilização -----
-    let taxaUtilizacaoReaisDia = 0;
-    if(modelo==='antigo' && resort==='BATBR'){
-      taxaUtilizacaoReaisDia = 0;
-    } else {
-      taxaUtilizacaoReaisDia = adultos >= 3 ? TAXA_UTILIZACAO.adultos3 : TAXA_UTILIZACAO.adultos2;
-    }
-    const taxaUtilizacaoReaisTotal = taxaUtilizacaoReaisDia * noites;
-    const taxaUtilizacaoPontos = valorPonto>0 ? taxaUtilizacaoReaisTotal / valorPonto : 0;
-
-    // ----- Repasse (o que a Bourbon recebe pela hospedagem, em reais) -----
-    let repasseReaisTotal = 0;
-    let repasseFaltante = false;
-    cursor = dIn; diaIndex = 0;
-    while(diaIndex < noites){
-      const iso = toISO(cursor);
-      const rep = repasseDiaria(resort, categoriaKey, iso);
-      if(rep == null){ repasseFaltante = true; }
-      else {
-        let valorDia = rep;
-        const dow = dayOfWeek(cursor);
-        const isFridaySat = (dow === 5 || dow === 6);
-        if(aplicarMulta && noites !== 7 && isFridaySat) valorDia = valorDia * 1.20;
-        repasseReaisTotal += valorDia;
-      }
-      cursor = addDays(cursor, 1);
-      diaIndex++;
-    }
-
-    // ----- Totais -----
-    const totalReservaPontos = hospedagemPontos + alimentacaoPontos + taxaUtilizacaoPontos;
-    const hospedagemReais = hospedagemPontos * valorPonto;
-    const taxaReais = taxaUtilizacaoReaisTotal;
-    const totalAFaturarReais = alimentacaoReais + repasseReaisTotal; // regra: Alimentação 100% + Valor de Repasse
-
-    // ----- Render (layout solicitado) -----
-    const t0 = temporadaDaData(checkin);
-    const ocupacaoStr = `${adultos} adulto(s)` + (numCriancas>0 ? ` + ${numCriancas} criança(s) (${idades.join(', ')} anos)` : '');
-    const hotelNome = resort === 'BATBR' ? 'Bourbon Resort Atibaia' : 'Bourbon Thermas Eco Resort Cataratas do Iguaçu';
-
-    let out = '';
-    out += `Cotação:\n`;
-    out += `Contrato: ${contrato}\n`;
-    out += `Período: ${formatDateBR(checkin)} a ${formatDateBR(checkout)} (${noites} noite${noites>1?'s':''})\n`;
-    out += `Hotel: ${hotelNome}\n`;
-    out += `Ocupação: ${ocupacaoStr}\n`;
-    out += `Categoria do quarto: ${catObj.label}\n`;
-    out += `Hospedagem: ${formatPts(hospedagemPontos)} pts (${formatBRL(hospedagemReais)})\n`;
-    out += `Alimentação: ${formatBRL(alimentacaoReais)} (${formatPts(alimentacaoPontos)} pts)\n`;
-    out += `Taxa de utilização: ${taxaUtilizacaoReaisDia===0 ? 'Isento' : formatBRL(taxaUtilizacaoReaisTotal)+' ('+formatPts(taxaUtilizacaoPontos)+' pts)'}\n`;
-    out += `Total da reserva: ${formatPts(totalReservaPontos)} pts\n`;
-    out += `Pontos disponíveis para utilização: \n`;
-    out += `\nInformações para faturamento:\n`;
-    out += `Número do Contrato: ${contrato}\n`;
-    out += `ID: ${contrato}\n`;
-    out += `Valor Pago Cliente BDC: ${formatBRL(hospedagemReais)}\n`;
-    out += `Valor Pago Cliente BDC em pontos (diárias): ${formatPts(hospedagemPontos)} pts\n`;
-    out += `Taxa: ${taxaUtilizacaoReaisDia===0 ? 'Isento' : formatBRL(taxaReais)}\n`;
-    out += `Taxa em Pontos: ${taxaUtilizacaoReaisDia===0 ? '—' : formatPts(taxaUtilizacaoPontos)+' pts'}\n`;
-    out += `Alimentação: ${formatBRL(alimentacaoReais)}\n`;
-    out += `Alimentação em Pontos: ${formatPts(alimentacaoPontos)} pts\n`;
-    out += `Valor do Repasse Diária: ${repasseFaltante ? '— (sem tabela para alguma data do período)' : formatBRL(repasseReaisTotal)}\n`;
-    out += `Total a Faturar: ${formatBRL(totalAFaturarReais)}\n`;
-
-    resultadoEl.textContent = out;
+    resultadoEl.textContent=out;
     resultadoEl.classList.remove('result-empty');
     resultadoEl.classList.add('result-content');
-  }catch(e){
-    showError(e.message);
-  }
+  }catch(e){showError(e.message);}
 });
 
-document.getElementById('btnLimpar').addEventListener('click', ()=>{
-  document.getElementById('contrato').value = '';
-  document.getElementById('valorPonto').value = '';
-  document.getElementById('adultos').value = 2;
-  criancasEl.value = 0;
-  popularIdades();
-  document.getElementById('multaSexSab').checked = false;
-  modeloDisplayEl.value = '';
-  setContratoStatus('\u00a0', null);
-  selStart = null; selEnd = null;
-  atualizarPeriodoCampo();
-  resultadoEl.textContent = 'Preencha os campos acima e clique em "Calcular orçamento".';
-  resultadoEl.classList.add('result-empty');
-  resultadoEl.classList.remove('result-content');
+document.getElementById('btnLimpar').addEventListener('click',()=>{
+  document.getElementById('contrato').value='';
+  document.getElementById('valorPonto').value='';
+  document.getElementById('multaSexSab').checked=false;
+  modeloDisplayEl.value='';
+  setContratoStatus('\u00a0',null);
+  selStart=null;selEnd=null;atualizarPeriodoCampo();
+  document.getElementById('quartosContainer').innerHTML='';
+  quartoCount=0;adicionarQuarto();
+  resultadoEl.textContent='Preencha os campos acima e clique em "Calcular orçamento".';
+  resultadoEl.classList.add('result-empty');resultadoEl.classList.remove('result-content');
   showError('');
 });
 
-document.getElementById('btnCopiar').addEventListener('click', ()=>{
+document.getElementById('btnCopiar').addEventListener('click',()=>{
   navigator.clipboard.writeText(resultadoEl.textContent).then(()=>{
-    erroEl.style.color = 'var(--accent-deep)';
-    erroEl.textContent = 'Orçamento copiado para a área de transferência.';
-    erroEl.classList.add('show');
-    setTimeout(()=>{ erroEl.classList.remove('show'); erroEl.style.color=''; }, 2500);
+    erroEl.style.color='var(--accent-deep)';erroEl.textContent='Orçamento copiado para a área de transferência.';
+    erroEl.classList.add('show');setTimeout(()=>{erroEl.classList.remove('show');erroEl.style.color='';},2500);
   });
 });
 </script>
