@@ -184,7 +184,7 @@
       </div>
       <div class="f w-md">
         <label>Valor do ponto (R$)</label>
-        <input id="valorPonto" type="number" step="0.0000001" placeholder="0,1699998">
+        <input id="valorPonto" type="number" step="0.0000000001" placeholder="0,1608263333">
         <span id="contratoStatus" class="hint" style="margin-top:2px;">&nbsp;</span>
       </div>
     </div>
@@ -220,6 +220,7 @@
     <div style="margin-top:12px;">
       <button type="button" id="btnAddQuarto" class="btn-ghost" style="font-size:13px;padding:7px 14px;">+ Adicionar quarto</button>
     </div>
+    <div id="chdHint" class="hint" style="margin-top:8px;"></div>
     <div id="erroMsg" class="error-msg"></div>
   </div>
 
@@ -315,7 +316,7 @@ const PENSAO_BIGUR = {
   media:     { cafe: 79.00, meia: 199.00, completa: 299.00 }
 };
 
-const CHD_RULE = { freeMax: 5, halfMax: 11 };
+const CHD_RULE = { BATBR: { freeMax: 5, halfMax: 11 }, BIGUR: { freeMax: 2, halfMax: 8 } };
 
 // Categorias: cada tipo de quarto com suas ocupações possíveis
 // ocupacoes: lista de nº de adultos suportados; aceitaCHD: se permite crianças
@@ -606,13 +607,23 @@ function adicionarQuarto(){
       const f=document.createElement('div'); f.className='f chd-age';
       const lbl=document.createElement('label'); lbl.textContent=`Idade ${i+1}`;
       const sel=document.createElement('select');
-      for(let idade=0;idade<=11;idade++){const opt=document.createElement('option');opt.value=idade;opt.textContent=idade;sel.appendChild(opt);}
+      for(let idade=0;idade<=11;idade++){const opt=document.createElement('option');opt.value=idade;opt.textContent=`${idade} anos`;sel.appendChild(opt);}
       f.appendChild(lbl); f.appendChild(sel); idadesWrap.appendChild(f);
     }
   }
   inA.addEventListener('input', atualizarCatQuarto);
   selC.addEventListener('change', atualizarCatQuarto);
   document.getElementById('quartosContainer').appendChild(row);
+}
+
+function atualizarHintCHD(){
+  const el = document.getElementById('chdHint');
+  if(!el) return;
+  if(resortSel.value === 'BATBR'){
+    el.textContent = 'Política de crianças (BATBR): 0–5 anos: cortesia · 6–11 anos: meia tarifa · 12+ anos: tratado como adulto';
+  } else {
+    el.textContent = 'Política de crianças (BIGUR): 0–2 anos: cortesia · 3–8 anos: meia tarifa · 9+ anos: tratado como adulto';
+  }
 }
 
 resortSel.addEventListener('change', ()=>{
@@ -629,10 +640,12 @@ resortSel.addEventListener('change', ()=>{
     if([...selCat.options].some(o=>o.value===prev)) selCat.value=prev;
   });
   atualizarTemporada();
+  atualizarHintCHD();
 });
 
 document.getElementById('btnAddQuarto').addEventListener('click', adicionarQuarto);
 adicionarQuarto();
+atualizarHintCHD();
 
 const modeloDisplayEl = document.getElementById('modeloDisplay');
 function setModelo(valor){
@@ -793,7 +806,8 @@ function calcularQuarto(resort,modelo,valorPonto,noites,dIn,adultos,idades,categ
     const vp=pensaoValorDia(iso,pensaoEfetiva);
     if(vp==null) throw new Error(`Sem tabela de pensão para ${formatDateBR(iso)}.`);
     let td=vp*adultos;
-    idades.forEach(idade=>{if(idade<=CHD_RULE.freeMax)td+=0;else if(idade<=CHD_RULE.halfMax)td+=vp*0.5;else td+=vp;});
+    const rule=CHD_RULE[resort]||CHD_RULE.BIGUR;
+    idades.forEach(idade=>{if(idade<=rule.freeMax)td+=0;else if(idade<=rule.halfMax)td+=vp*0.5;else td+=vp;});
     alimReais+=td; cursor=addDays(cursor,1);di++;
   }
 
