@@ -316,7 +316,9 @@ const PENSAO_BIGUR = {
   media:     { cafe: 79.00, meia: 199.00, completa: 299.00 }
 };
 
-const CHD_RULE = { BATBR: { freeMax: 5, halfMax: 11 }, BIGUR: { freeMax: 2, halfMax: 8 } };
+const CHD_RULE = { BATBR: { freeMax: 11, halfMax: 11 }, BIGUR: { freeMax: 2, halfMax: 8 } };
+// BATBR: 0-11 anos grátis na pensão, 12+ adulto
+// BIGUR: 0-2 grátis, 3-8 meia tarifa, 9+ adulto
 
 // Categorias: cada tipo de quarto com suas ocupações possíveis
 // ocupacoes: lista de nº de adultos suportados; aceitaCHD: se permite crianças
@@ -620,7 +622,7 @@ function atualizarHintCHD(){
   const el = document.getElementById('chdHint');
   if(!el) return;
   if(resortSel.value === 'BATBR'){
-    el.textContent = 'Política de crianças (BATBR): 0–5 anos: cortesia · 6–11 anos: meia tarifa · 12+ anos: tratado como adulto';
+    el.textContent = 'Política de crianças (BATBR): 0–11 anos: cortesia na pensão · 12+ anos: cobrado como adulto';
   } else {
     el.textContent = 'Política de crianças (BIGUR): 0–2 anos: cortesia · 3–8 anos: meia tarifa · 9+ anos: tratado como adulto';
   }
